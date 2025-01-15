@@ -1,13 +1,11 @@
 <!doctype html>
-<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>ARM 汇编 - ACE_xW</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="ACE_xW"><meta name="msapplication-TileImage" content="https://octodex.github.com/images/heisencat.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ACE_xW"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="ARM 汇编 Layout label: instruction ;comment &amp;gt;label 字母、下划线和 $ 组成. &amp;gt;comment 所有在;后面的都认为是注释 &amp;gt;instruction 指令 1234567    .textstart:    MOV r1, #20 ;puts the value 20 into register r1    MOV r2, #22"><meta property="og:type" content="blog"><meta property="og:title" content="ACE_xW"><meta property="og:url" content="https://bapuqln.github.io/"><meta property="og:site_name" content="小布布的家"><meta property="og:description" content="ARM 汇编 Layout label: instruction ;comment &amp;gt;label 字母、下划线和 $ 组成. &amp;gt;comment 所有在;后面的都认为是注释 &amp;gt;instruction 指令 1234567    .textstart:    MOV r1, #20 ;puts the value 20 into register r1    MOV r2, #22"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://octodex.github.com/images/heisencat.png"><meta property="article:published_time" content="2019-12-04T07:01:12.000Z"><meta property="article:modified_time" content="2025-01-15T07:01:21.144Z"><meta property="article:author" content="ACE_xW"><meta property="article:tag" content="iOS"><meta property="article:tag" content="ARM 汇编"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="https://octodex.github.com/images/heisencat.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bapuqln.github.io"},"headline":"ACE_xW","image":["https://octodex.github.com/images/heisencat.png"],"datePublished":"2019-12-04T07:01:12.000Z","dateModified":"2025-01-15T07:01:21.144Z","author":{"@type":"Person","name":"ACE_xW"},"publisher":{"@type":"Organization","name":"ACE_xW","logo":{"@type":"ImageObject","url":"https://octodex.github.com/images/heisencat.png"}},"description":"ARM 汇编 Layout label: instruction ;comment &gt;label 字母、下划线和 $ 组成. &gt;comment 所有在;后面的都认为是注释 &gt;instruction 指令 1234567    .textstart:    MOV r1, #20 ;puts the value 20 into register r1    MOV r2, #22"}</script><link rel="canonical" href="https://bapuqln.github.io/back/ARM%E6%B1%87%E7%BC%96.html"><link rel="icon" href="https://octodex.github.com/images/heisencat.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/dracula.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css"><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script data-ad-client="ca-pub-6519518696903770" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="ACE_xW" type="application/atom+xml">
-<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">ARM 汇编</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="arm-汇编">ARM 汇编</h1>
-<!-- hexo-inject:begin --><!-- hexo-inject:end --><h2 id="layout">Layout</h2>
-<p>label: instruction ;comment &gt;label 字母、下划线和 $ 组成.
-&gt;comment 所有在<code>;</code>后面的都认为是注释 &gt;instruction
-指令</p>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>ARM 汇编 - ACE_xW</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="ACE_xW"><meta name="msapplication-TileImage" content="https://octodex.github.com/images/heisencat.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ACE_xW"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="ARM 汇编Layoutlabel:  instruction ;comment  label 字母、下划线和 $ 组成.comment  所有在;后面的都认为是注释instruction 指令  1234567    .textstart:    MOV r1, #20 ;puts the value 20 into register r1    MOV r2, #22 ;puts the va"><meta property="og:type" content="blog"><meta property="og:title" content="ACE_xW"><meta property="og:url" content="https://bapuqln.github.io/"><meta property="og:site_name" content="小布布的家"><meta property="og:description" content="ARM 汇编Layoutlabel:  instruction ;comment  label 字母、下划线和 $ 组成.comment  所有在;后面的都认为是注释instruction 指令  1234567    .textstart:    MOV r1, #20 ;puts the value 20 into register r1    MOV r2, #22 ;puts the va"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://octodex.github.com/images/heisencat.png"><meta property="article:published_time" content="2019-12-04T07:01:12.000Z"><meta property="article:modified_time" content="2025-01-15T07:01:21.144Z"><meta property="article:author" content="ACE_xW"><meta property="article:tag" content="iOS"><meta property="article:tag" content="ARM 汇编"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="https://octodex.github.com/images/heisencat.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bapuqln.github.io"},"headline":"ACE_xW","image":["https://octodex.github.com/images/heisencat.png"],"datePublished":"2019-12-04T07:01:12.000Z","dateModified":"2025-01-15T07:01:21.144Z","author":{"@type":"Person","name":"ACE_xW"},"publisher":{"@type":"Organization","name":"ACE_xW","logo":{"@type":"ImageObject","url":"https://octodex.github.com/images/heisencat.png"}},"description":"ARM 汇编Layoutlabel:  instruction ;comment  label 字母、下划线和 $ 组成.comment  所有在;后面的都认为是注释instruction 指令  1234567    .textstart:    MOV r1, #20 ;puts the value 20 into register r1    MOV r2, #22 ;puts the va"}</script><link rel="canonical" href="https://bapuqln.github.io/back/ARM%E6%B1%87%E7%BC%96.html"><link rel="icon" href="https://octodex.github.com/images/heisencat.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/dracula.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css"><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script data-ad-client="ca-pub-6519518696903770" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="ACE_xW" type="application/atom+xml">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">ARM 汇编</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="ARM-汇编"><a href="#ARM-汇编" class="headerlink" title="ARM 汇编"></a>ARM 汇编</h1><h2 id="Layout"><a href="#Layout" class="headerlink" title="Layout"></a>Layout</h2><p>label:  instruction ;comment</p>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><blockquote>
+<p>label 字母、下划线和 $ 组成.<br>comment  所有在<code>;</code>后面的都认为是注释<br>instruction 指令</p>
+</blockquote>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">    .text</span><br><span class="line">start:</span><br><span class="line">    MOV r1, #20 ;puts the value 20 into register r1</span><br><span class="line">    MOV r2, #22 ;puts the value 22 into register r2</span><br><span class="line">    ADD r0, r1, r2 ;adds r1 and r2, r0 contains 42</span><br><span class="line">end:</span><br><span class="line">    b end   ;infinite loop, always jump back to end</span><br></pre></td></tr></table></figure>
-<h2 id="instruction-format">Instruction Format</h2>
-<blockquote>
+<h2 id="Instruction-Format"><a href="#Instruction-Format" class="headerlink" title="Instruction Format"></a>Instruction Format</h2><blockquote>
 <p><code>&lt;op&gt;&#123;cond&#125;&#123;flags&#125; Rd, Rn, Operand2</code></p>
 </blockquote>
 <p>例如: <code>ADD r0, r1, r2</code></p>
@@ -19,60 +17,85 @@
 <li>Rn 第一个寄存器</li>
 <li>Operand2 第二个寄存器或者操作数</li>
 </ul>
-<h2 id="condition-code">Condition Code</h2>
-<p>在指令后面添加，允许指令在特定条件下执行。</p>
+<h2 id="Condition-Code"><a href="#Condition-Code" class="headerlink" title="Condition Code"></a>Condition Code</h2><p>在指令后面添加，允许指令在特定条件下执行。</p>
 <ul>
 <li><p>AL - always</p>
 <blockquote>
-<p>无条件执行，因此可以不用写 ADDAL 和 ADD 是等价的</p>
-</blockquote></li>
+<p>无条件执行，因此可以不用写 ADDAL 和 ADD 是等价的    </p>
+</blockquote>
+</li>
 <li><p>NV - never。</p>
 <blockquote>
 <p>AL 的反义词，带有该标记的指令不会执行。已经废弃。</p>
-</blockquote></li>
+</blockquote>
+</li>
 <li><p>EQ - equal</p>
 <blockquote>
-<p>当 Z 标志为被设置过后，才会执行，如果 Z
-标志位被清除，该行指令被忽略.</p>
+<p> 当 Z 标志为被设置过后，才会执行，如果 Z 标志位被清除，该行指令被忽略.</p>
 </blockquote>
-<p><code>MOV r0, #42 ;Write the value 42 into the register r0MOV r1, #41 ;Write the value 41 into the register r1CMP r0, r1 ;Compare the registers r0 and r1, update CPSR register  BEQ label ;This command will not be run, since Z = 0MOV r1, #42 ;Write the value 42 into the register r1CMP r0, r1 ;Compare r0 and r1, update the CPSRBEQ label ;This command will be run, since Z = 1   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* NE - not equal</span><br><span class="line"></span><br><span class="line">    &gt; EQ 的反义词，如果 Z 标志位被清除，则执行。如果 Z 标志位被设置过，该行指令被忽略</span><br><span class="line">    </span><br></pre></td></tr></table></figure> MOV r0, #42 ;Write the value 42 into the register r0MOV r1, #42 ;Write the value 42 into the register r1CMP r0, r1 ;Compare the registers r0 and r1, update CPSR register  BNE label ;This command will not be run, since Z = 1MOV r1, #41 ;Write the value 42 into the register r1CMP r0, r1 ;Compare r0 and r1, update the CPSRBNE label ;This command will be run, since Z = 0   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* VS - overflow set</span><br><span class="line">    </span><br><span class="line">    &gt; 如果 overflow(v) 位被设置，该条件为 true。两个32位有符号数相加，可能会出一个33位的有符号数</span><br><span class="line"></span><br><span class="line">* VC - overflow clear</span><br><span class="line"></span><br><span class="line">    &gt; 如果 overflow(v) 位被清除，该条件为 true。</span><br><span class="line">    </span><br><span class="line">* MI - minus</span><br><span class="line"></span><br><span class="line">    &gt; 如果 negative(N) 为被设置，该条件为 true</span><br><span class="line">    </span><br></pre></td></tr></table></figure> MOV r0, #40MOV r1, #42SUBS r2, r0, r1 ; 40 – 42, the result is negative BMI destination ; this portion of code is never executed</code></p></li>
+<pre><code>MOV r0, #42 ;Write the value 42 into the register r0
+MOV r1, #41 ;Write the value 41 into the register r1
+CMP r0, r1 ;Compare the registers r0 and r1, update CPSR register 
+BEQ label ;This command will not be run, since Z = 0
+MOV r1, #42 ;Write the value 42 into the register r1
+CMP r0, r1 ;Compare r0 and r1, update the CPSR
+BEQ label ;This command will be run, since Z = 1
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">* NE - not equal</span><br><span class="line"></span><br><span class="line">    &gt; EQ 的反义词，如果 Z 标志位被清除，则执行。如果 Z 标志位被设置过，该行指令被忽略</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+MOV r0, #42 ;Write the value 42 into the register r0
+MOV r1, #42 ;Write the value 42 into the register r1
+CMP r0, r1 ;Compare the registers r0 and r1, update CPSR register 
+BNE label ;This command will not be run, since Z = 1
+MOV r1, #41 ;Write the value 42 into the register r1
+CMP r0, r1 ;Compare r0 and r1, update the CPSR
+BNE label ;This command will be run, since Z = 0
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* VS - overflow set</span><br><span class="line">    </span><br><span class="line">    &gt; 如果 overflow(v) 位被设置，该条件为 true。两个32位有符号数相加，可能会出一个33位的有符号数</span><br><span class="line"></span><br><span class="line">* VC - overflow clear</span><br><span class="line"></span><br><span class="line">    &gt; 如果 overflow(v) 位被清除，该条件为 true。</span><br><span class="line">    </span><br><span class="line">* MI - minus</span><br><span class="line"></span><br><span class="line">    &gt; 如果 negative(N) 为被设置，该条件为 true</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+MOV r0, #40
+MOV r1, #42
+SUBS r2, r0, r1 ; 40 – 42, the result is negative
+BMI destination ; this portion of code is never executed
+</code></pre></li>
 <li><p>PL - plus</p>
 <blockquote>
 <p>如果 negative(N) 位被清除，该条件为 true。(&lt;= 0)</p>
-</blockquote></li>
+</blockquote>
+</li>
 <li><p>CS - Carry Set</p>
 <blockquote>
-<p>当一个在32位无符号数上的操作超出了32位的范围的时候，carry set
-标志位设为 true</p>
-</blockquote></li>
+<p>当一个在32位无符号数上的操作超出了32位的范围的时候，carry set 标志位设为 true</p>
+</blockquote>
+</li>
 <li><p>CC - Carry Clear</p>
 <blockquote>
 <p>如果 Carry Flag(C) 被清除了，该条语句执行</p>
-</blockquote></li>
+</blockquote>
+</li>
 <li><p>HI - Higher</p>
 <blockquote>
 <p>如果 Carry Flag(C) 被设置，并且结果非0(Z)，该语句执行</p>
-</blockquote></li>
+</blockquote>
+</li>
 <li><p>LS - Lower or Same</p>
 <blockquote>
 <p>如果 Carry Flag(C) 被清除，并且结果为0(Z)，该语句执行</p>
-</blockquote></li>
+</blockquote>
+</li>
 <li><p>GE - Greater than or Equal</p>
 <blockquote>
-<p>当有符号数，并且当 Negative(N) 和 Overflow(V)
-相等的时候，该语句才有效</p>
-</blockquote></li>
+<p>当有符号数，并且当 Negative(N) 和 Overflow(V) 相等的时候，该语句才有效</p>
+</blockquote>
+</li>
 <li><p>LT - Less Than</p>
 <blockquote>
-<p>有符号数，并且当 Negative(V) 和 Overflow(V)
-不相等的时候，该语句才有效。</p>
-</blockquote></li>
+<p>有符号数，并且当 Negative(V) 和 Overflow(V) 不相等的时候，该语句才有效。</p>
+</blockquote>
+</li>
 <li><p>LE - Less Than or Equal</p>
 <blockquote>
-<p>像 LT， 如果 Negative(V) 和 Overflow(V) 不相等，或者
-Zero(Z)标志位被设置了的时候，该语句才执行。</p>
-</blockquote></li>
+<p>像 LT， 如果 Negative(V) 和 Overflow(V) 不相等，或者 Zero(Z)标志位被设置了的时候，该语句才执行。</p>
+</blockquote>
+</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -159,10 +182,14 @@ Zero(Z)标志位被设置了的时候，该语句才执行。</p>
 </tr>
 </tbody>
 </table>
-<h2 id="updating-condition-flags">Updating Condition Flags</h2>
-<p>默认情况下，指令不更新条件标志。 &gt; 当 S (ADDS, SBCS...)
-标志位被设置后，指令才能更新标志位。 &gt; 例外：比较指令会自动更新</p>
-<p><code>Objective-C MOV r0, # 80 00 00 0F ; r0 I 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 I I I IMOV r1, r0, LSL #1  ; r1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 I I I I 0</code></p>
+</div>
+<h2 id="Updating-Condition-Flags"><a href="#Updating-Condition-Flags" class="headerlink" title="Updating Condition Flags"></a>Updating Condition Flags</h2><p>默认情况下，指令不更新条件标志。</p>
+<blockquote>
+<p>当 S (ADDS, SBCS…) 标志位被设置后，指令才能更新标志位。<br>例外：比较指令会自动更新</p>
+</blockquote>
+<pre><code class="lang-Objective-C">MOV r0, # 80 00 00 0F ; r0 I 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 I I I I
+MOV r1, r0, LSL #1  ; r1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 I I I I 0
+</code></pre>
 </div><div class="article-licensing box"><div class="licensing-title"><p>ARM 汇编</p><p><a href="https://bapuqln.github.io/back/ARM汇编.html">https://bapuqln.github.io/back/ARM汇编.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>shouyi.www</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2019-12-04</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2025-01-15</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><div class="addthis_inline_share_toolbox"></div><script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f6a3085d629232a" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/images/alipay.JPG" alt="支付宝"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/images/wechatpay.JPG" alt="微信"></span></a></div></div></div><div class="card"><div class="card-content"><h3 class="title is-5">评论</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
             id: "e640f252ebf8b417b10a86c03857600c",
             repo: "bapuqln.github.io.reply",

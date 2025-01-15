@@ -1,189 +1,92 @@
 <!doctype html>
-<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Metal 编程指南 - ACE_xW</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="ACE_xW"><meta name="msapplication-TileImage" content="https://octodex.github.com/images/heisencat.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ACE_xW"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Metal Programming Guide Command organization and execution model (指令组织和执行模型)  在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU, 该协议提供了一系列方法可以查询设备属性, 创建设备相关对象(缓存和纹理) command queue 包含了一系列的 command buffers, comma"><meta property="og:type" content="blog"><meta property="og:title" content="ACE_xW"><meta property="og:url" content="https://bapuqln.github.io/"><meta property="og:site_name" content="小布布的家"><meta property="og:description" content="Metal Programming Guide Command organization and execution model (指令组织和执行模型)  在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU, 该协议提供了一系列方法可以查询设备属性, 创建设备相关对象(缓存和纹理) command queue 包含了一系列的 command buffers, comma"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://octodex.github.com/images/heisencat.png"><meta property="article:published_time" content="2019-12-04T07:01:12.000Z"><meta property="article:modified_time" content="2025-01-15T07:01:21.235Z"><meta property="article:author" content="ACE_xW"><meta property="article:tag" content="iOS"><meta property="article:tag" content="Metal"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="https://octodex.github.com/images/heisencat.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bapuqln.github.io"},"headline":"ACE_xW","image":["https://octodex.github.com/images/heisencat.png"],"datePublished":"2019-12-04T07:01:12.000Z","dateModified":"2025-01-15T07:01:21.235Z","author":{"@type":"Person","name":"ACE_xW"},"publisher":{"@type":"Organization","name":"ACE_xW","logo":{"@type":"ImageObject","url":"https://octodex.github.com/images/heisencat.png"}},"description":"Metal Programming Guide Command organization and execution model (指令组织和执行模型)  在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU, 该协议提供了一系列方法可以查询设备属性, 创建设备相关对象(缓存和纹理) command queue 包含了一系列的 command buffers, comma"}</script><link rel="canonical" href="https://bapuqln.github.io/source/back/Metal%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97.html"><link rel="icon" href="https://octodex.github.com/images/heisencat.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/dracula.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css"><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script data-ad-client="ca-pub-6519518696903770" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="ACE_xW" type="application/atom+xml">
-<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">Metal 编程指南</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="metal-programming-guide">Metal Programming Guide</h1>
-<!-- hexo-inject:begin --><!-- hexo-inject:end --><h2
-id="command-organization-and-execution-model-指令组织和执行模型">Command
-organization and execution model (指令组织和执行模型)</h2>
-<ol type="1">
-<li><p>在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU,
-该协议提供了一系列方法可以查询设备属性,
-创建设备相关对象(缓存和纹理)</p></li>
-<li><p>command queue 包含了一系列的 command buffers, command queue
-用于管理其中的 command buffers 的执行顺序.</p></li>
-<li><p>command buffer 包含了多个被编码的指令,
-这些指令在一个特定设备上运行.</p></li>
-<li><p>command encoder 可以将绘制, 计算, 位图传输指令放到一个 command
-buffer 中</p></li>
-<li><p>command buffers 最终被提交到设备中去执行.</p></li>
-<li><p>MTLCommandQueue 协议为 command queue 定义了接口, 主要是创建
-command buffer 对象的方法.</p></li>
-<li><p>MTLCommandBuffer 协议 为 command queue 定义了接口, 提供了创建
-command encoder, 入队列执行, 检测状态以及其他操作. 该协议定义了几种
-command encoder 的类型, 他们可以被用于将不同的 GPU 任务编码到 command
-buffer 中执行.</p>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Metal 编程指南 - ACE_xW</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="ACE_xW"><meta name="msapplication-TileImage" content="https://octodex.github.com/images/heisencat.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ACE_xW"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Metal Programming GuideCommand organization and execution model (指令组织和执行模型) 在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU, 该协议提供了一系列方法可以查询设备属性, 创建设备相关对象(缓存和纹理) command queue 包含了一系列的 command buffers, command"><meta property="og:type" content="blog"><meta property="og:title" content="ACE_xW"><meta property="og:url" content="https://bapuqln.github.io/"><meta property="og:site_name" content="小布布的家"><meta property="og:description" content="Metal Programming GuideCommand organization and execution model (指令组织和执行模型) 在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU, 该协议提供了一系列方法可以查询设备属性, 创建设备相关对象(缓存和纹理) command queue 包含了一系列的 command buffers, command"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://octodex.github.com/images/heisencat.png"><meta property="article:published_time" content="2019-12-04T07:01:12.000Z"><meta property="article:modified_time" content="2025-01-15T07:01:21.235Z"><meta property="article:author" content="ACE_xW"><meta property="article:tag" content="iOS"><meta property="article:tag" content="Metal"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="https://octodex.github.com/images/heisencat.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bapuqln.github.io"},"headline":"ACE_xW","image":["https://octodex.github.com/images/heisencat.png"],"datePublished":"2019-12-04T07:01:12.000Z","dateModified":"2025-01-15T07:01:21.235Z","author":{"@type":"Person","name":"ACE_xW"},"publisher":{"@type":"Organization","name":"ACE_xW","logo":{"@type":"ImageObject","url":"https://octodex.github.com/images/heisencat.png"}},"description":"Metal Programming GuideCommand organization and execution model (指令组织和执行模型) 在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU, 该协议提供了一系列方法可以查询设备属性, 创建设备相关对象(缓存和纹理) command queue 包含了一系列的 command buffers, command"}</script><link rel="canonical" href="https://bapuqln.github.io/source/back/Metal%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97.html"><link rel="icon" href="https://octodex.github.com/images/heisencat.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/dracula.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css"><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script data-ad-client="ca-pub-6519518696903770" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="ACE_xW" type="application/atom+xml">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">Metal 编程指南</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="Metal-Programming-Guide"><a href="#Metal-Programming-Guide" class="headerlink" title="Metal Programming Guide"></a>Metal Programming Guide</h1><h2 id="Command-organization-and-execution-model-指令组织和执行模型"><a href="#Command-organization-and-execution-model-指令组织和执行模型" class="headerlink" title="Command organization and execution model (指令组织和执行模型)"></a>Command organization and execution model (指令组织和执行模型)</h2><ol>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><li>在 Metal 框架中, MTLDevice 协议定义的接口描述了一个 GPU, 该协议提供了一系列方法可以查询设备属性, 创建设备相关对象(缓存和纹理)</li>
+<li>command queue 包含了一系列的 command buffers, command queue 用于管理其中的 command buffers 的执行顺序.</li>
+<li>command buffer 包含了多个被编码的指令, 这些指令在一个特定设备上运行.</li>
+<li>command encoder 可以将绘制, 计算, 位图传输指令放到一个 command buffer 中</li>
+<li>command buffers 最终被提交到设备中去执行.</li>
+<li>MTLCommandQueue 协议为 command queue 定义了接口, 主要是创建 command buffer 对象的方法.</li>
+<li><p>MTLCommandBuffer 协议 为 command queue 定义了接口, 提供了创建 command encoder, 入队列执行, 检测状态以及其他操作. 该协议定义了几种 command encoder 的类型, 他们可以被用于将不同的 GPU 任务编码到 command buffer 中执行.</p>
 <blockquote>
-<p>MTLRenderCommandEncoder 协议 - 将图形渲染指令编码为一次渲染过程.
-MTLComputeCommandEncoder 协议 - 编码并行计算任务 MTLBlitCommandEncoder
-协议 - 在缓存和纹理之间的拷贝以及 mipmap 的生成.</p>
-</blockquote></li>
-<li><p>任一时刻, 只有一个 Encoder 是处于激活状态的, 他可以向一个 command
-buffer 提交 command. 对于同一个 command buffer 来说,必须是前一个 encoder
-结束后, 新的 encoder 才可以被创建并且用于此 command
-buffer(MTLParallelRenderCommandEncoder 例外).</p></li>
-<li><p>一点所有的指令编码结束, MTLCommandBuffer
-对象自己就会提交,并且会被标记为准备执行状态. MTLCommandQueue
-协议可以用来控制这些要被执行的 MTLCommandBuffer 对象.</p></li>
-<li><p>一个 MTLDevice 对象代表了一个可以执行 command 的 GPU. MTLDevice
-协议有创建新的 command queue , 从内存创建缓存, 创建纹理,
-查询设备能力的方法. 使用 MTLCreateSystemDefaultDevice
-来创建首选设备.</p></li>
-<li><p>创建: command buffers 和 command encoder
-基本不耗费什么系统资源.</p></li>
-<li><p>Command queue &amp; buffer &amp; texture &amp; sample state
-libraries &amp; compute state &amp; render pipeline state &amp;
-depth/stencil state, 这些对象系统鼓励重用.</p></li>
+<p>MTLRenderCommandEncoder 协议 - 将图形渲染指令编码为一次渲染过程.<br>MTLComputeCommandEncoder 协议 - 编码并行计算任务<br>MTLBlitCommandEncoder 协议 - 在缓存和纹理之间的拷贝以及 mipmap 的生成.</p>
+</blockquote>
+</li>
+<li><p>任一时刻, 只有一个 Encoder 是处于激活状态的, 他可以向一个 command buffer 提交 command. 对于同一个 command buffer 来说,必须是前一个 encoder 结束后, 新的 encoder 才可以被创建并且用于此 command buffer(MTLParallelRenderCommandEncoder 例外).</p>
+</li>
+<li>一点所有的指令编码结束, MTLCommandBuffer 对象自己就会提交,并且会被标记为准备执行状态. MTLCommandQueue 协议可以用来控制这些要被执行的 MTLCommandBuffer 对象.</li>
+<li>一个 MTLDevice 对象代表了一个可以执行 command 的 GPU. MTLDevice 协议有创建新的 command queue , 从内存创建缓存, 创建纹理, 查询设备能力的方法. 使用 MTLCreateSystemDefaultDevice 来创建首选设备.</li>
+<li>创建: command buffers 和 command encoder 基本不耗费什么系统资源. </li>
+<li>Command queue &amp; buffer &amp; texture &amp; sample state libraries &amp; compute state &amp; render pipeline state &amp; depth/stencil state, 这些对象系统鼓励重用.</li>
 </ol>
-<h2 id="command-queue">Command Queue</h2>
-<ol type="1">
-<li><p>command queue 接受的是: 有序的 command buffer(将要在 GPU 中执行)
-列表. 在 command queue 中的 command buffers 会被确保按顺序执行. command
-queue 是线程安全的.</p></li>
+<h2 id="Command-Queue"><a href="#Command-Queue" class="headerlink" title="Command Queue"></a>Command Queue</h2><ol>
+<li>command queue 接受的是: 有序的 command buffer(将要在 GPU 中执行) 列表. 在 command queue 中的 command buffers 会被确保按顺序执行. command queue 是线程安全的.</li>
 <li><p>MTLDevice 中有两个方法可以创建 command queue</p>
 <blockquote>
-<p>newCommandQueue newCommandQueueWithMaxCommandBufferCount</p>
-</blockquote></li>
-<li><p>不要没事销毁和创建 commandQueue, 记得复用.</p></li>
+<p>newCommandQueue<br>newCommandQueueWithMaxCommandBufferCount</p>
+</blockquote>
+</li>
+<li>不要没事销毁和创建 commandQueue, 记得复用.</li>
 </ol>
-<h2 id="command-buffer">Command buffer</h2>
-<ol type="1">
-<li>command buffer 在被 GPU 执行之前会包含多个被编码的 command,</li>
+<h2 id="Command-buffer"><a href="#Command-buffer" class="headerlink" title="Command buffer"></a>Command buffer</h2><ol>
+<li>command buffer 在被 GPU 执行之前会包含多个被编码的 command, </li>
 <li>不支持重用, 能做的就是提交执行后, 检查状态</li>
 <li>他还是 app 中独立可以被追踪的任务单元.</li>
 </ol>
-<h3 id="创建-command-buffer">创建 command buffer</h3>
-<ol type="1">
-<li>MTLCommandQueue 中定义了创建 <code>commandBuffer</code> 的方法. 一个
-MTLCommandQueue 对象只能提交给创建他的 MTLCommandQueue.</li>
-<li><code>commandBuffers</code>创建的 command buffer
-对象持有他执行时需要的数据. 在特定场景下, 你需要的资源已经被持有了,
-可以使用<code>commandBufferWithUnretainedReferences</code>方法.(该方法只有在极端需要性能
-app 中, 并且能够保证在 command
-执行完之前资源都保持存活的情况下才使用)</li>
+<h3 id="创建-command-buffer"><a href="#创建-command-buffer" class="headerlink" title="创建 command buffer"></a>创建 command buffer</h3><ol>
+<li>MTLCommandQueue 中定义了创建 <code>commandBuffer</code> 的方法. 一个 MTLCommandQueue 对象只能提交给创建他的 MTLCommandQueue.</li>
+<li><code>commandBuffers</code>创建的 command buffer 对象持有他执行时需要的数据. 在特定场景下, 你需要的资源已经被持有了, 可以使用<code>commandBufferWithUnretainedReferences</code>方法.(该方法只有在极端需要性能 app 中, 并且能够保证在 command 执行完之前资源都保持存活的情况下才使用)</li>
 </ol>
-<h3 id="executing-command">Executing Command</h3>
-<ol type="1">
-<li>MTLCommandBuffer 协议中有下列的方法可以设定在 command queue
-中的执行顺序. 一个 command buffer 一定要先提交然后在执行.</li>
-<li><code>enqueue</code> 方法可以为一个 command buffer 在 command queue
-中预定一个位置.但是并没有把 command buffer 提交执行.当这个 command
-buffer 最终提交的时候, 他会在之前做 enqueue 操作的 command buffer
-之后执行.</li>
-<li><code>commit</code> 方法会使 command buffer
-尽快的被执行.但必须是等到之前 enqueue 的 command buffer 执行后. commit
-会隐式的调用 enqueue.</li>
+<h3 id="Executing-Command"><a href="#Executing-Command" class="headerlink" title="Executing Command"></a>Executing Command</h3><ol>
+<li>MTLCommandBuffer 协议中有下列的方法可以设定在 command queue 中的执行顺序. 一个 command buffer 一定要先提交然后在执行.</li>
+<li><code>enqueue</code> 方法可以为一个 command buffer 在 command queue 中预定一个位置.但是并没有把 command buffer 提交执行.当这个 command buffer 最终提交的时候, 他会在之前做 enqueue 操作的 command buffer 之后执行.</li>
+<li><code>commit</code> 方法会使 command buffer 尽快的被执行.但必须是等到之前 enqueue 的 command buffer 执行后. commit 会隐式的调用 enqueue.</li>
 </ol>
-<h3
-id="registering-handler-blocks-for-command-buffer-execution">Registering
-Handler Blocks for Command Buffer Execution</h3>
-<ol type="1">
-<li><code>addScheduledHandler</code>, 当 command buffer 被 schedule
-的时候调用.</li>
-<li><code>waitUntilScheduled</code>, 该方法同步的等待, 当 command buffer
-被完全执行完或者其所有注册 <code>addScheduledhandler</code>
-都结束的时候返回.</li>
-<li><code>addCompleteHandler</code>, 当设备执行完 command buffer
-的时候调用.</li>
-<li><code>waitUntilCompleted</code>, 该方法同步的等待, 当设备执行完
-command buffer并且所有注册 <code>addCompleteHandler</code>
-都返回的时候.</li>
-<li><code>presentDrawable:</code>, 便捷函数:在command buffer 被 schedule
-的时候, 能够将可显示的资源(CAMetalDrawable 对象)展示出来</li>
-<li><code>status</code>, read-only 属性. command buffer
-是在生命周期的哪个阶段.</li>
-<li><code>error</code>, 如果没有异常,为 nil. 如果有错误, 可以看看
-command buffer error codes.</li>
+<h3 id="Registering-Handler-Blocks-for-Command-Buffer-Execution"><a href="#Registering-Handler-Blocks-for-Command-Buffer-Execution" class="headerlink" title="Registering Handler Blocks for Command Buffer Execution"></a>Registering Handler Blocks for Command Buffer Execution</h3><ol>
+<li><code>addScheduledHandler</code>, 当 command buffer 被 schedule 的时候调用.</li>
+<li><code>waitUntilScheduled</code>, 该方法同步的等待, 当 command buffer 被完全执行完或者其所有注册 <code>addScheduledhandler</code> 都结束的时候返回.</li>
+<li><code>addCompleteHandler</code>, 当设备执行完 command buffer 的时候调用.</li>
+<li><code>waitUntilCompleted</code>, 该方法同步的等待, 当设备执行完 command buffer并且所有注册 <code>addCompleteHandler</code> 都返回的时候.</li>
+<li><code>presentDrawable:</code>, 便捷函数:在command buffer 被 schedule 的时候, 能够将可显示的资源(CAMetalDrawable 对象)展示出来</li>
+<li><code>status</code>, read-only 属性. command buffer 是在生命周期的哪个阶段.</li>
+<li><code>error</code>, 如果没有异常,为 nil. 如果有错误, 可以看看 command buffer error codes.</li>
 </ol>
-<h3 id="command-encoder">Command Encoder</h3>
-<p>1.Encoder 是一个一次性的 transient 的对象,
-在激活状态的时候可以他就可以把一个 command 追加到 command buffer 中.
-使用 <code>endEncoding</code> 来结束编码 command. 还想要编码 command,
-只能在新建一个 encoder.</p>
-<h3 id="creating-a-command-encoding-object">Creating a Command Encoding
-Object</h3>
-<ol type="1">
-<li><code>renderCommandEncoderWithDescriptor</code>, 创建一个
-<code>MTLRenderCommandEncoder</code> 类型的 encoder
-用来在<code>TMLRenderPassDescriptor</code>中做图形渲染.</li>
-<li><code>computeCommandEncoder</code>, 创建一个
-<code>MTLComputeCommandEncoder</code> 类型的 encoder
-用来做并行计算.</li>
-<li><code>blitCommandEncoder</code>, 创建了一个
-<code>MTLBlitCommandEncoder</code> 类型的 encoder 用来做内存操作.</li>
-<li><code>parallelRenderCommandEncoderWithDescriptor</code>,
-创建了一个<code>MTLParallelRenderCommandEncoder</code> 类型的 encoder,
-用来让多个 <code>MTLRenderCommandEncoder</code>
-对象在不同的线程工作,并且保证渲染到同一个
-attachment(共享的<code>MTLRenderPassDescriptor</code>) 中.</li>
+<h3 id="Command-Encoder"><a href="#Command-Encoder" class="headerlink" title="Command Encoder"></a>Command Encoder</h3><p>1.Encoder 是一个一次性的 transient 的对象, 在激活状态的时候可以他就可以把一个 command 追加到 command buffer 中. 使用 <code>endEncoding</code> 来结束编码 command. 还想要编码 command, 只能在新建一个 encoder.</p>
+<h3 id="Creating-a-Command-Encoding-Object"><a href="#Creating-a-Command-Encoding-Object" class="headerlink" title="Creating a Command Encoding Object"></a>Creating a Command Encoding Object</h3><ol>
+<li><code>renderCommandEncoderWithDescriptor</code>, 创建一个 <code>MTLRenderCommandEncoder</code> 类型的 encoder 用来在<code>TMLRenderPassDescriptor</code>中做图形渲染.</li>
+<li><code>computeCommandEncoder</code>, 创建一个 <code>MTLComputeCommandEncoder</code> 类型的 encoder 用来做并行计算.</li>
+<li><code>blitCommandEncoder</code>, 创建了一个 <code>MTLBlitCommandEncoder</code> 类型的 encoder 用来做内存操作.</li>
+<li><code>parallelRenderCommandEncoderWithDescriptor</code>, 创建了一个<code>MTLParallelRenderCommandEncoder</code> 类型的 encoder, 用来让多个 <code>MTLRenderCommandEncoder</code> 对象在不同的线程工作,并且保证渲染到同一个 attachment(共享的<code>MTLRenderPassDescriptor</code>) 中.</li>
 </ol>
-<h3 id="render-command-encoder">Render Command Encoder</h3>
-<ol type="1">
-<li><p>该 encoder
-需要关联一个<code>MTLRenderPassDescriptor</code>对象，在这个descriptor对象中包含了颜色
-、景深、模板attachment，这些attachment将被当做绘制命令的目标，</p></li>
-<li><p>该 Encoder 有如下能力:</p>
+<h3 id="Render-Command-Encoder"><a href="#Render-Command-Encoder" class="headerlink" title="Render Command Encoder"></a>Render Command Encoder</h3><ol>
+<li>该 encoder 需要关联一个<code>MTLRenderPassDescriptor</code>对象，在这个descriptor对象中包含了颜色 、景深、模板attachment，这些attachment将被当做绘制命令的目标，</li>
+<li><p>该 Encoder 有如下能力: </p>
 <blockquote>
-<p>指定图形资源, 如缓存和纹理对象。 指定
-<code>MTLRenderPipelineState</code>对象(包含 compiled rendering state
-以及顶点和片段着色器) 指定 <code>fixed-function</code> 状态, 包括
-viewport, 更多可以看 <code>MTLRenderCommandEncoder</code> 协议</p>
-</blockquote></li>
+<p>指定图形资源, 如缓存和纹理对象。<br>指定 <code>MTLRenderPipelineState</code>对象(包含 compiled rendering state 以及顶点和片段着色器)<br>指定 <code>fixed-function</code> 状态, 包括 viewport,<br>更多可以看 <code>MTLRenderCommandEncoder</code> 协议</p>
+</blockquote>
+</li>
 </ol>
-<h3 id="compute-command-encoder">Compute Command Encoder</h3>
-<blockquote>
+<h3 id="Compute-Command-Encoder"><a href="#Compute-Command-Encoder" class="headerlink" title="Compute Command Encoder"></a>Compute Command Encoder</h3><blockquote>
 <p>参见 <code>MTLComputeCommandEncoder</code> 协议</p>
 </blockquote>
-<h3 id="blit-command-encoder">Blit Command Encoder</h3>
-<blockquote>
-<p><code>MTLBlitCommandEncoder</code> 协议可以追加一个 command 用来做
-MTLBuffer 和 MTLTexture 之前的内存拷贝操作.
-还可以用固定颜色填充纹理生成一个 mipmaps</p>
+<h3 id="Blit-Command-Encoder"><a href="#Blit-Command-Encoder" class="headerlink" title="Blit Command Encoder"></a>Blit Command Encoder</h3><blockquote>
+<p><code>MTLBlitCommandEncoder</code> 协议可以追加一个 command 用来做 MTLBuffer 和 MTLTexture 之前的内存拷贝操作.<br>还可以用固定颜色填充纹理生成一个 mipmaps</p>
 </blockquote>
-<h3 id="multiple-thread-command-buffers-command-encoder">Multiple
-Thread, Command Buffers, Command Encoder</h3>
-<ol type="1">
-<li>大多数程序使用单一的线程来encoder 绘制指令到一个 command buffer
-来绘制一帧画面.在每一帧结束的时候, 提交 command buffer, 这样就可以
-shcedule 并且 开始 command 的执行.</li>
-<li>如果需要并行的为 command buffer 编码,
-这样就需要在同时创建多个command buffer, 在不同的线程 encoder 每一个
-command buffer. 如果提前知道 command buffer 的执行顺序, 就可以按顺序
-enqueue 每个 command buffer, 就不用等待执行编码和提交.</li>
+<h3 id="Multiple-Thread-Command-Buffers-Command-Encoder"><a href="#Multiple-Thread-Command-Buffers-Command-Encoder" class="headerlink" title="Multiple Thread, Command Buffers, Command Encoder"></a>Multiple Thread, Command Buffers, Command Encoder</h3><ol>
+<li>大多数程序使用单一的线程来encoder 绘制指令到一个 command buffer 来绘制一帧画面.在每一帧结束的时候, 提交 command buffer, 这样就可以 shcedule 并且 开始 command 的执行.</li>
+<li>如果需要并行的为 command buffer 编码, 这样就需要在同时创建多个command buffer, 在不同的线程 encoder 每一个 command buffer. 如果提前知道 command buffer 的执行顺序, 就可以按顺序 enqueue 每个 command buffer, 就不用等待执行编码和提交.</li>
 </ol>
-<h2 id="resource-objects-buffers-and-textures">Resource Objects: Buffers
-and Textures</h2>
-<ol type="1">
-<li><code>MTLBuffer</code>
-表示一块非格式化的内存可以存放任何类型的数据.通常用来存放顶点, 着色器,
-计算状态数据.</li>
-<li><code>MTLTexture</code> 表示一块有格式的图像数据, 有特定的纹理类型
-&amp; 像素格式</li>
+<h2 id="Resource-Objects-Buffers-and-Textures"><a href="#Resource-Objects-Buffers-and-Textures" class="headerlink" title="Resource Objects: Buffers and Textures"></a>Resource Objects: Buffers and Textures</h2><ol>
+<li><code>MTLBuffer</code> 表示一块非格式化的内存可以存放任何类型的数据.通常用来存放顶点, 着色器, 计算状态数据.</li>
+<li><code>MTLTexture</code> 表示一块有格式的图像数据, 有特定的纹理类型 &amp; 像素格式</li>
 <li><code>MTLSampleState</code> 用于纹理对象的查找计算.</li>
 </ol>
-<h3 id="buffers-are-typeless-allocations-of-memory">Buffers are Typeless
-Allocations of Memory</h3>
-<p>一个 MTLBuffer 表示了一段内存区域,他可以存放任何数据类型.</p>
-<h3 id="creating-a-buffer-object">Creating a Buffer Object</h3>
-<ol type="1">
-<li>下面的 <code>MTLDevice</code> 方法创建并返回一个
-<code>MTLBuffer</code> 对象</li>
+<h3 id="Buffers-are-Typeless-Allocations-of-Memory"><a href="#Buffers-are-Typeless-Allocations-of-Memory" class="headerlink" title="Buffers are Typeless Allocations of Memory"></a>Buffers are Typeless Allocations of Memory</h3><p>一个 MTLBuffer 表示了一段内存区域,他可以存放任何数据类型.</p>
+<h3 id="Creating-a-Buffer-Object"><a href="#Creating-a-Buffer-Object" class="headerlink" title="Creating a Buffer Object"></a>Creating a Buffer Object</h3><ol>
+<li>下面的 <code>MTLDevice</code> 方法创建并返回一个 <code>MTLBuffer</code> 对象</li>
 </ol>
 <blockquote>
-<p><code>newBufferWithLenth:Options:</code> 分配内存创建一个 MTLBuffer
-对象 <code>newBufferWithBytes:length:options:</code>
-通过从已有的存储器中拷贝到新分配的内存中
-<code>newBufferWithBytesNoCopy:length:options:deallocator:</code>
-该方法创建一个 MTLBuffer
-对象，但不会为这个对象新分配内存，而是使用已经存在的内存。</p>
+<p><code>newBufferWithLenth:Options:</code> 分配内存创建一个 MTLBuffer 对象<br><code>newBufferWithBytes:length:options:</code> 通过从已有的存储器中拷贝到新分配的内存中<br><code>newBufferWithBytesNoCopy:length:options:deallocator:</code> 该方法创建一个 MTLBuffer 对象，但不会为这个对象新分配内存，而是使用已经存在的内存。</p>
 </blockquote>
 </div><div class="article-licensing box"><div class="licensing-title"><p>Metal 编程指南</p><p><a href="https://bapuqln.github.io/source/back/Metal编程指南.html">https://bapuqln.github.io/source/back/Metal编程指南.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>shouyi.www</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2019-12-04</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2025-01-15</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><div class="addthis_inline_share_toolbox"></div><script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f6a3085d629232a" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/images/alipay.JPG" alt="支付宝"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/images/wechatpay.JPG" alt="微信"></span></a></div></div></div><div class="card"><div class="card-content"><h3 class="title is-5">评论</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
             id: "1afca7d8aca20a6a58aae71776442ea2",
