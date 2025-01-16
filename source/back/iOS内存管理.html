@@ -1,47 +1,130 @@
 <!doctype html>
-<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>iOS 内存管理 - ACE_xW</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="ACE_xW"><meta name="msapplication-TileImage" content="https://octodex.github.com/images/heisencat.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ACE_xW"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="iOS 内存管理和 malloc 源代码解读iOS 内存基本管理在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和 MRC，但其实这仅仅是对堆内存上对象的内存管理。 在内存管理方面，其实 iOS 和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。 和其他操作系统上运行的进程类似，iOS App 进程的地址空间也分为代码区、数据区、栈区和堆区。"><meta property="og:type" content="blog"><meta property="og:title" content="ACE_xW"><meta property="og:url" content="https://bapuqln.github.io/"><meta property="og:site_name" content="小布布的家"><meta property="og:description" content="iOS 内存管理和 malloc 源代码解读iOS 内存基本管理在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和 MRC，但其实这仅仅是对堆内存上对象的内存管理。 在内存管理方面，其实 iOS 和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。 和其他操作系统上运行的进程类似，iOS App 进程的地址空间也分为代码区、数据区、栈区和堆区。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://octodex.github.com/images/heisencat.png"><meta property="article:published_time" content="2019-12-04T07:01:12.000Z"><meta property="article:modified_time" content="2025-01-15T07:01:21.236Z"><meta property="article:author" content="ACE_xW"><meta property="article:tag" content="iOS"><meta property="article:tag" content="内存管理"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="https://octodex.github.com/images/heisencat.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bapuqln.github.io"},"headline":"ACE_xW","image":["https://octodex.github.com/images/heisencat.png"],"datePublished":"2019-12-04T07:01:12.000Z","dateModified":"2025-01-15T07:01:21.236Z","author":{"@type":"Person","name":"ACE_xW"},"publisher":{"@type":"Organization","name":"ACE_xW","logo":{"@type":"ImageObject","url":"https://octodex.github.com/images/heisencat.png"}},"description":"iOS 内存管理和 malloc 源代码解读iOS 内存基本管理在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和 MRC，但其实这仅仅是对堆内存上对象的内存管理。 在内存管理方面，其实 iOS 和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。 和其他操作系统上运行的进程类似，iOS App 进程的地址空间也分为代码区、数据区、栈区和堆区。"}</script><link rel="canonical" href="https://bapuqln.github.io/source/back/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.html"><link rel="icon" href="https://octodex.github.com/images/heisencat.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/dracula.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css"><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script data-ad-client="ca-pub-6519518696903770" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="ACE_xW" type="application/atom+xml">
-<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">iOS 内存管理</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="iOS-内存管理和-malloc-源代码解读"><a href="#iOS-内存管理和-malloc-源代码解读" class="headerlink" title="iOS 内存管理和 malloc 源代码解读"></a>iOS 内存管理和 malloc 源代码解读</h1><h2 id="iOS-内存基本管理"><a href="#iOS-内存基本管理" class="headerlink" title="iOS 内存基本管理"></a>iOS 内存基本管理</h2><p>在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和 MRC，但其实这仅仅是对堆内存上对象的内存管理。</p>
-<!-- hexo-inject:begin --><!-- hexo-inject:end --><p>在内存管理方面，其实 iOS 和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。</p>
-<p>和其他操作系统上运行的进程类似，iOS App 进程的地址空间也分为代码区、数据区、栈区和堆区。进程开始时，会把 mach-o 文件中的各部分，按需加载到内存中。</p>
-<p>对于一般的 iPhone 来说，实际物理内存都在1GB 左右，对于超大的内存需求，也和一般的操作系统一样，都由系统内核维护一套虚拟内存系统。但这里需要注意的是 iOS 的虚拟系统原则略有不同，最截然不同的地方就是当物理内存内存紧张情况时得处理。</p>
-<p>当物理内存紧张时，iOS 会把可以通过重新映射来加载的内存直接清理出内存，对于不可再生的数据，iOS 需要 App 进程配合处理，由各进程发送内存警告要求配合释放内存。对于不能及时释放足够内存的，直接 kill 掉进程，必要时甚至是前台运行的 app。。<br>所以，iOS 在外存没有交换区，没有内存页换出的过程。</p>
-<h2 id="malloc-基本原理"><a href="#malloc-基本原理" class="headerlink" title="malloc 基本原理"></a>malloc 基本原理</h2><p>在 iOS APP 进程地址空间各个区域中，最灵活的就要属堆区，它为进程动态分配内存，也是我们经常和内存打交道的地方。</p>
-<p>通常，我们会在需要新对象的时候，进行<code>[NSObject alloc]</code>调用，而释放对象时需要 <code>release</code>（ARC 会自动帮你做到这些）。</p>
-<p>而这些 <code>alloc</code>、<code>release</code> 方法的调用，最终会走到 <code>libsystem_malloc.dylib</code> 的 <code>malloc()</code> 和 <code>free()</code> 函数这里。<code>libsystem_malloc.dylib</code> 是 iOS 内核之外的一个内存库，我们 app 进程需要的内存，先会请求到这里，但最终<code>libsystem_malloc.dylib</code>也都会向 iOS 的系统内核发起申请，映射实际内存到 app 进程的地址空间。</p>
-<p>从苹果公开的 malloc 的源代码上看，原理大概如此：<br><code>malloc</code> 内存分配基于 <code>malloc zone</code>，并将内存分配按大小分为 <code>nano</code>、<code>tiny</code>、<code>small</code>、<code>large</code> 几种类型。申请时按需进行最适分配。 <code>malloc</code> 在首次调用时，初始化 <code>default zone</code>，在 64 位情况下，会初始化 <code>default zone</code> 为 <code>nano zone</code>。同事初始化一个 <code>scalable zone</code> 作为 <code>helper zone</code>，<code>nano zone</code> 负责 <code>nano</code> 大小的分配，<code>scalable zone</code> 负责 <code>tiny</code>、<code>small</code> 和 <code>large</code> 内存的分配。每次 <code>malloc</code> 时，根据传入的 <code>size</code> 参数，优先交个 <code>nano zone</code> 做分配处理，如果大小不在 <code>nano</code> 范围，则转交给 <code>helper zone</code> 处理。</p>
-<p><img src="media/14918224467708/14919671963359.jpg" alt=""></p>
-<h2 id="nano-malloc"><a href="#nano-malloc" class="headerlink" title="nano malloc"></a>nano malloc</h2><p>在支持64位的条件下，malloc 优先考虑 nano malloc，负责对  256B 以下小内存分配，单位是16B。</p>
-<p>nano zone 分配内存的地址空间范围是 <code>0x00006nnnnnnnnnnn</code> （OSX 64位情况），将地址空间从大到小一次分为 <code>magazine</code>、<code>band</code>、<code>slot</code> 几个级别</p>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>iOS 内存管理 - ACE_xW</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="ACE_xW"><meta name="msapplication-TileImage" content="https://octodex.github.com/images/heisencat.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ACE_xW"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="iOS 内存管理和 malloc 源代码解读 iOS 内存基本管理 在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和 MRC，但其实这仅仅是对堆内存上对象的内存管理。 在内存管理方面，其实 iOS 和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。 和其他操作系统上运行的进程类似，iOS App 进程的地址空间也分为代码区、数据区、栈区和堆"><meta property="og:type" content="blog"><meta property="og:title" content="ACE_xW"><meta property="og:url" content="https://bapuqln.github.io/"><meta property="og:site_name" content="小布布的家"><meta property="og:description" content="iOS 内存管理和 malloc 源代码解读 iOS 内存基本管理 在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和 MRC，但其实这仅仅是对堆内存上对象的内存管理。 在内存管理方面，其实 iOS 和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。 和其他操作系统上运行的进程类似，iOS App 进程的地址空间也分为代码区、数据区、栈区和堆"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://octodex.github.com/images/heisencat.png"><meta property="article:published_time" content="2019-12-04T07:01:12.000Z"><meta property="article:modified_time" content="2025-01-15T07:01:21.236Z"><meta property="article:author" content="ACE_xW"><meta property="article:tag" content="iOS"><meta property="article:tag" content="内存管理"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="https://octodex.github.com/images/heisencat.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bapuqln.github.io"},"headline":"ACE_xW","image":["https://octodex.github.com/images/heisencat.png"],"datePublished":"2019-12-04T07:01:12.000Z","dateModified":"2025-01-15T07:01:21.236Z","author":{"@type":"Person","name":"ACE_xW"},"publisher":{"@type":"Organization","name":"ACE_xW","logo":{"@type":"ImageObject","url":"https://octodex.github.com/images/heisencat.png"}},"description":"iOS 内存管理和 malloc 源代码解读 iOS 内存基本管理 在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和 MRC，但其实这仅仅是对堆内存上对象的内存管理。 在内存管理方面，其实 iOS 和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。 和其他操作系统上运行的进程类似，iOS App 进程的地址空间也分为代码区、数据区、栈区和堆"}</script><link rel="canonical" href="https://bapuqln.github.io/source/back/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.html"><link rel="icon" href="https://octodex.github.com/images/heisencat.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/dracula.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css"><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script data-ad-client="ca-pub-6519518696903770" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="ACE_xW" type="application/atom+xml">
+<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><h1 class="title is-3 is-size-4-mobile">iOS 内存管理</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="ios-内存管理和-malloc-源代码解读"><!-- hexo-inject:begin --><!-- hexo-inject:end -->iOS 内存管理和 malloc
+源代码解读</h1>
+<h2 id="ios-内存基本管理">iOS 内存基本管理</h2>
+<p>在接触 iOS 开发的时候，我们知道引用计数器的概念，也知道 ARC 和
+MRC，但其实这仅仅是对堆内存上对象的内存管理。</p>
+<p>在内存管理方面，其实 iOS
+和其他操作系统总体上来说是大同小异的，大的框架原理基本相似，小的细节有所创新和不同。</p>
+<p>和其他操作系统上运行的进程类似，iOS App
+进程的地址空间也分为代码区、数据区、栈区和堆区。进程开始时，会把 mach-o
+文件中的各部分，按需加载到内存中。</p>
+<p>对于一般的 iPhone 来说，实际物理内存都在1GB
+左右，对于超大的内存需求，也和一般的操作系统一样，都由系统内核维护一套虚拟内存系统。但这里需要注意的是
+iOS
+的虚拟系统原则略有不同，最截然不同的地方就是当物理内存内存紧张情况时得处理。</p>
+<p>当物理内存紧张时，iOS
+会把可以通过重新映射来加载的内存直接清理出内存，对于不可再生的数据，iOS
+需要 App
+进程配合处理，由各进程发送内存警告要求配合释放内存。对于不能及时释放足够内存的，直接
+kill 掉进程，必要时甚至是前台运行的 app。。 所以，iOS
+在外存没有交换区，没有内存页换出的过程。</p>
+<h2 id="malloc-基本原理">malloc 基本原理</h2>
+<p>在 iOS APP
+进程地址空间各个区域中，最灵活的就要属堆区，它为进程动态分配内存，也是我们经常和内存打交道的地方。</p>
+<p>通常，我们会在需要新对象的时候，进行<code>[NSObject alloc]</code>调用，而释放对象时需要
+<code>release</code>（ARC 会自动帮你做到这些）。</p>
+<p>而这些 <code>alloc</code>、<code>release</code>
+方法的调用，最终会走到 <code>libsystem_malloc.dylib</code> 的
+<code>malloc()</code> 和 <code>free()</code>
+函数这里。<code>libsystem_malloc.dylib</code> 是 iOS
+内核之外的一个内存库，我们 app
+进程需要的内存，先会请求到这里，但最终<code>libsystem_malloc.dylib</code>也都会向
+iOS 的系统内核发起申请，映射实际内存到 app 进程的地址空间。</p>
+<p>从苹果公开的 malloc 的源代码上看，原理大概如此： <code>malloc</code>
+内存分配基于 <code>malloc zone</code>，并将内存分配按大小分为
+<code>nano</code>、<code>tiny</code>、<code>small</code>、<code>large</code>
+几种类型。申请时按需进行最适分配。 <code>malloc</code>
+在首次调用时，初始化 <code>default zone</code>，在 64 位情况下，会初始化
+<code>default zone</code> 为 <code>nano zone</code>。同事初始化一个
+<code>scalable zone</code> 作为
+<code>helper zone</code>，<code>nano zone</code> 负责 <code>nano</code>
+大小的分配，<code>scalable zone</code> 负责
+<code>tiny</code>、<code>small</code> 和 <code>large</code>
+内存的分配。每次 <code>malloc</code> 时，根据传入的 <code>size</code>
+参数，优先交个 <code>nano zone</code> 做分配处理，如果大小不在
+<code>nano</code> 范围，则转交给 <code>helper zone</code> 处理。</p>
+<p><img src="media/14918224467708/14919671963359.jpg" /></p>
+<h2 id="nano-malloc">nano malloc</h2>
+<p>在支持64位的条件下，malloc 优先考虑 nano malloc，负责对 256B
+以下小内存分配，单位是16B。</p>
+<p>nano zone 分配内存的地址空间范围是 <code>0x00006nnnnnnnnnnn</code>
+（OSX 64位情况），将地址空间从大到小一次分为
+<code>magazine</code>、<code>band</code>、<code>slot</code> 几个级别</p>
 <ul>
-<li><code>magazine</code> 范围对应于 <code>CPU</code>，<code>CPU0</code> 对应 <code>Mag0</code>、<code>CPU1</code> 对应 <code>Mag1</code>，以此类推；</li>
-<li><code>Band</code> 范围为 <code>2M</code>，连续分配内存当内存不够时以 <code>Band</code> 为单位向内核请求。</li>
-<li><code>Slot</code> 则对应每个 <code>Band</code> 中 128K 大小的范围，每个 <code>Band</code> 都分为 16个 <code>Slot</code>，分别对应于 16B、32B、…. 256B大小，支持他们的内存分配。</li>
+<li><code>magazine</code> 范围对应于 <code>CPU</code>，<code>CPU0</code>
+对应 <code>Mag0</code>、<code>CPU1</code> 对应
+<code>Mag1</code>，以此类推；</li>
+<li><code>Band</code> 范围为 <code>2M</code>，连续分配内存当内存不够时以
+<code>Band</code> 为单位向内核请求。</li>
+<li><code>Slot</code> 则对应每个 <code>Band</code> 中 128K
+大小的范围，每个 <code>Band</code> 都分为 16个
+<code>Slot</code>，分别对应于 16B、32B、....
+256B大小，支持他们的内存分配。</li>
 </ul>
 <p>分配过程</p>
 <ul>
-<li>确定当前 CPU 对应的 mag 和通过 size 参数计算出来的 slot，去对应的 metadata 的链表中取已经被释放过得内存区块缓存。判断渠道检查指针地址是否有问题，没有问题就直接返回。</li>
-<li>初次进行 nano malloc 时，nano zone 并没有缓存，会直接在 nano zone 范围的地址空间上直接分配连续地址内存。</li>
-<li>如当前 band 中当前 slot 耗尽，则向系统申请新的 band （每个 band 固定大小2M，容纳了16个128K 的槽），连续地址分配内存的基地址、limit 地址以及当前分配到的地址由 meta data 结构维护起来，而这些 meta data 则以 mag、slot 为维度（mag 个数是处理器个数，slot 是16个）的二维数组形式，放在 nanozone_t 的 meta_data字段中。</li>
+<li>确定当前 CPU 对应的 mag 和通过 size 参数计算出来的 slot，去对应的
+metadata
+的链表中取已经被释放过得内存区块缓存。判断渠道检查指针地址是否有问题，没有问题就直接返回。</li>
+<li>初次进行 nano malloc 时，nano zone 并没有缓存，会直接在 nano zone
+范围的地址空间上直接分配连续地址内存。</li>
+<li>如当前 band 中当前 slot 耗尽，则向系统申请新的 band （每个 band
+固定大小2M，容纳了16个128K 的槽），连续地址分配内存的基地址、limit
+地址以及当前分配到的地址由 meta data 结构维护起来，而这些 meta data 则以
+mag、slot 为维度（mag 个数是处理器个数，slot
+是16个）的二维数组形式，放在 nanozone_t 的 meta_data字段中。</li>
 </ul>
-<p>当 <code>app</code> 通过 <code>free()</code> 释放内存时：<code>malloc</code> 库会检查指针地址，如果没有问题，则以链表形式将这些区块按大小存储起来。这些链表的头部放在 <code>meta_data</code> 数组中对应的 <code>[mag][slot]</code> 元素中。</p>
-<p>其实从缓存获取空余内存和释放内存时都会对指向这片内存区域的指针进行检查，如果有类似地址不对齐、未释放、多次释放、所属地址与预期的 mag、slot 不匹配等情况都会以报错结束。</p>
-<p><img src="media/14918224467708/14919679880484.jpg" alt=""></p>
-<p>除了分配和释放、系统内存吃紧时，nano zone 需将 cache 的内存区块还给系统，这主要是通过对各个 slot 对应的 meta data 上挂着空闲的链表上内存区块回收来完成。</p>
-<h2 id="scalable-zone-上内存分配简要分析"><a href="#scalable-zone-上内存分配简要分析" class="headerlink" title="scalable zone 上内存分配简要分析"></a>scalable zone 上内存分配简要分析</h2><p>对于超出 nano 大小范围或者不支持 nano 分配的，直接会在 scalable zone 上分配。由于 scalable zone 上的内存分配比 nano 分配要复杂。下面只做简单介绍。</p>
-<p>scalable zone 上分配的内存包括 tiny、small、large 三大类。其中 tiny 和 small 的分配、释放过程大致相同，large 类型有自己的方式管理。</p>
-<p>而 tiny、small 的方式也遵循着 nano 分配中的原则，新内存从系统申请并分配，free 后按照大小以特定的形式缓存起来，供后续分配使用。这里的分配在 region 上进行，region 和 nano malloc 里的 band 概念即为相似，但不同的是地址空间未必连续，而且每个 region 都有自己的位图等描述信息。和 nano 一样每个 CPU 都有一个 magazine，除此之外还分配了一个 index 为 -1 的 magazine 作为后备之用。<br><img src="media/14918224467708/14919684759521.jpg" alt=""></p>
+<p>当 <code>app</code> 通过 <code>free()</code>
+释放内存时：<code>malloc</code>
+库会检查指针地址，如果没有问题，则以链表形式将这些区块按大小存储起来。这些链表的头部放在
+<code>meta_data</code> 数组中对应的 <code>[mag][slot]</code>
+元素中。</p>
+<p>其实从缓存获取空余内存和释放内存时都会对指向这片内存区域的指针进行检查，如果有类似地址不对齐、未释放、多次释放、所属地址与预期的
+mag、slot 不匹配等情况都会以报错结束。</p>
+<p><img src="media/14918224467708/14919679880484.jpg" /></p>
+<p>除了分配和释放、系统内存吃紧时，nano zone 需将 cache
+的内存区块还给系统，这主要是通过对各个 slot 对应的 meta data
+上挂着空闲的链表上内存区块回收来完成。</p>
+<h2 id="scalable-zone-上内存分配简要分析">scalable zone
+上内存分配简要分析</h2>
+<p>对于超出 nano 大小范围或者不支持 nano 分配的，直接会在 scalable zone
+上分配。由于 scalable zone 上的内存分配比 nano
+分配要复杂。下面只做简单介绍。</p>
+<p>scalable zone 上分配的内存包括 tiny、small、large 三大类。其中 tiny
+和 small 的分配、释放过程大致相同，large 类型有自己的方式管理。</p>
+<p>而 tiny、small 的方式也遵循着 nano
+分配中的原则，新内存从系统申请并分配，free
+后按照大小以特定的形式缓存起来，供后续分配使用。这里的分配在 region
+上进行，region 和 nano malloc 里的 band
+概念即为相似，但不同的是地址空间未必连续，而且每个 region
+都有自己的位图等描述信息。和 nano 一样每个 CPU 都有一个
+magazine，除此之外还分配了一个 index 为 -1 的 magazine 作为后备之用。
+<img src="media/14918224467708/14919684759521.jpg" /></p>
 <p>以 tiny 的情况为例，</p>
 <blockquote>
 <p>分配时：</p>
 </blockquote>
 <ul>
-<li>确定当前线程所在处理器的 magazine index，找到对应的 magazine 结构。</li>
-<li>优先查看上次最后释放的区块是否和此次请求的大小刚好相等（都是对齐后的 slot 大小），如果是则直接返回。</li>
-<li>如果不是，则查找 free list 中当前请求大小区块的空闲缓存列表，如果有返回，并整理列表。</li>
-<li>如果没有，则在 free list 找比当前申请区块大的，而且最接近的缓存，如果有返回，并把剩余大小放到 free list 中另外的链表上。（这里需要注意的是，在一般情况下，free list 分为64个槽，0-62 上挂载区块的大小都是按 16B 为单位递增，63为所有更大的内存区块挂载的地方）</li>
-<li>上面几项都不行，就在最后一个 region 的尾部或者首部（如果支持 ALSR）找空闲区域分配。</li>
-<li>如果还是不行，说明所有现有 region 都没有可用空间了，那么从一个后备 magazine 中取出一个可用 region，完整地拿过来放到当前 magazine，再走一遍上面的步骤。</li>
-<li>如果这都不行，那只能向内核申请一块新的 region 区域，挂载到当前的 magazine 下并分配内存。</li>
+<li>确定当前线程所在处理器的 magazine index，找到对应的 magazine
+结构。</li>
+<li>优先查看上次最后释放的区块是否和此次请求的大小刚好相等（都是对齐后的
+slot 大小），如果是则直接返回。</li>
+<li>如果不是，则查找 free list
+中当前请求大小区块的空闲缓存列表，如果有返回，并整理列表。</li>
+<li>如果没有，则在 free list
+找比当前申请区块大的，而且最接近的缓存，如果有返回，并把剩余大小放到
+free list 中另外的链表上。（这里需要注意的是，在一般情况下，free list
+分为64个槽，0-62 上挂载区块的大小都是按 16B
+为单位递增，63为所有更大的内存区块挂载的地方）</li>
+<li>上面几项都不行，就在最后一个 region 的尾部或者首部（如果支持
+ALSR）找空闲区域分配。</li>
+<li>如果还是不行，说明所有现有 region 都没有可用空间了，那么从一个后备
+magazine 中取出一个可用 region，完整地拿过来放到当前
+magazine，再走一遍上面的步骤。</li>
+<li>如果这都不行，那只能向内核申请一块新的 region 区域，挂载到当前的
+magazine 下并分配内存。</li>
 <li>如果还是不行，那就没招了，系统也给不到内存，就返回报错。</li>
 </ul>
 <blockquote>
@@ -49,13 +132,22 @@
 </blockquote>
 <ul>
 <li>检查指针指向的地址是否有问题。</li>
-<li>如果 last free 指针上没有挂载内存区块，则当道 last free 上就 OK 了。</li>
-<li>如果有 last free，置换内存，并把 last free 原有内存区块挂载到 free list 上。（在挂载的 free list 前，会根据 region 位图检查前后区块是否能合并成为更大的区块，如果能会合并成一个）</li>
-<li>合并后所在的 region 如果空闲字节超过一定条件，则把 region 放到后备的 magazine 中（-1）。</li>
+<li>如果 last free 指针上没有挂载内存区块，则当道 last free 上就 OK
+了。</li>
+<li>如果有 last free，置换内存，并把 last free 原有内存区块挂载到 free
+list 上。（在挂载的 free list 前，会根据 region
+位图检查前后区块是否能合并成为更大的区块，如果能会合并成一个）</li>
+<li>合并后所在的 region 如果空闲字节超过一定条件，则把 region 放到后备的
+magazine 中（-1）。</li>
 <li>如果整个 region 都是空的，则直接还给系统内核，一了百了。</li>
 </ul>
-<p>而 large 的情况，malloc 以页为单位申请和分配内存，不区分 magazine，scalable zone 同意维护一个 hash table 管理已申请的内存。而且由于内存区域都比较庞大，置换村总量2G 的区块，氛围16个元素，每个最大为128M。large 相关的结构相对简单。</p>
-<p><a target="_blank" rel="noopener" href="http://www.opensource.apple.com/source/libmalloc/libmalloc-53.1.1/src/">苹果 malloc 代码</a>：</p>
+<p>而 large 的情况，malloc 以页为单位申请和分配内存，不区分
+magazine，scalable zone 同意维护一个 hash table
+管理已申请的内存。而且由于内存区域都比较庞大，置换村总量2G
+的区块，氛围16个元素，每个最大为128M。large 相关的结构相对简单。</p>
+<p><a
+target="_blank" rel="noopener" href="http://www.opensource.apple.com/source/libmalloc/libmalloc-53.1.1/src/">苹果
+malloc 代码</a>：</p>
 </div><div class="article-licensing box"><div class="licensing-title"><p>iOS 内存管理</p><p><a href="https://bapuqln.github.io/source/back/iOS内存管理.html">https://bapuqln.github.io/source/back/iOS内存管理.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>shouyi.www</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2019-12-04</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2025-01-15</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/"></a><a class="link-muted mr-2" rel="tag" href="/"></a></div><div class="addthis_inline_share_toolbox"></div><script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f6a3085d629232a" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/images/alipay.JPG" alt="支付宝"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/images/wechatpay.JPG" alt="微信"></span></a></div></div></div><div class="card"><div class="card-content"><h3 class="title is-5">评论</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
             id: "1a3f14dd0667391401710d232475f29f",
             repo: "bapuqln.github.io.reply",

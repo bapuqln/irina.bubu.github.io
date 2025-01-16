@@ -1,70 +1,66 @@
 <!doctype html>
 <html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>iOS 端启动速度优化 - ACE_xW</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="ACE_xW"><meta name="msapplication-TileImage" content="https://octodex.github.com/images/heisencat.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ACE_xW"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="应用启动流程 iOS 启动可以分为pre-main阶段和main()阶段"><meta property="og:type" content="blog"><meta property="og:title" content="ACE_xW"><meta property="og:url" content="https://bapuqln.github.io/"><meta property="og:site_name" content="小布布的家"><meta property="og:description" content="应用启动流程 iOS 启动可以分为pre-main阶段和main()阶段"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://octodex.github.com/images/heisencat.png"><meta property="article:published_time" content="2020-02-19T01:33:06.000Z"><meta property="article:modified_time" content="2025-01-15T07:01:21.143Z"><meta property="article:author" content="ACE_xW"><meta property="article:tag" content="iOS"><meta property="article:tag" content="启动速度"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="https://octodex.github.com/images/heisencat.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://bapuqln.github.io"},"headline":"ACE_xW","image":["https://octodex.github.com/images/heisencat.png"],"datePublished":"2020-02-19T01:33:06.000Z","dateModified":"2025-01-15T07:01:21.143Z","author":{"@type":"Person","name":"ACE_xW"},"publisher":{"@type":"Organization","name":"ACE_xW","logo":{"@type":"ImageObject","url":"https://octodex.github.com/images/heisencat.png"}},"description":"应用启动流程 iOS 启动可以分为pre-main阶段和main()阶段"}</script><link rel="canonical" href="https://bapuqln.github.io/2020/02/19/iOS%E7%AB%AF%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E4%BC%98%E5%8C%96/"><link rel="icon" href="https://octodex.github.com/images/heisencat.png"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/dracula.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css"><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script data-ad-client="ca-pub-6519518696903770" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" async></script><meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="ACE_xW" type="application/atom+xml">
-<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2020-02-19T01:33:06.000Z" title="2020/2/19 09:33:06">2020-02-19</time>发表</span><span class="level-item"><time dateTime="2025-01-15T07:01:21.143Z" title="2025/1/15 15:01:21">2025-01-15</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/iOS/">iOS</a></span><span class="level-item">3 分钟读完 (大约511个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">iOS 端启动速度优化</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="应用启动流程"><a href="#应用启动流程" class="headerlink" title="应用启动流程"></a>应用启动流程</h2><p> <code>iOS</code> 启动可以分为<code>pre-main</code>阶段和<code>main()</code>阶段</p>
- <!-- hexo-inject:begin --><!-- hexo-inject:end --><span id="more"></span>
-<h3 id="pre-main阶段"><a href="#pre-main阶段" class="headerlink" title="pre-main阶段"></a><code>pre-main</code>阶段</h3><ul>
-<li>加载可执行文件</li>
-<li>加载动态链接库加载器 <code>dyld</code></li>
-<li>递归加载动态链接库 <code>dylib</code></li>
-</ul>
-<h3 id="main-阶段"><a href="#main-阶段" class="headerlink" title="main 阶段"></a><code>main</code> 阶段</h3><ul>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="https://octodex.github.com/images/heisencat.png" alt="ACE_xW" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/bapuqln"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2020-02-19T01:33:06.000Z" title="2020/2/19 09:33:06">2020-02-19</time>发表</span><span class="level-item"><time dateTime="2025-01-15T07:01:21.143Z" title="2025/1/15 15:01:21">2025-01-15</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/iOS/">iOS</a></span><span class="level-item">3 分钟读完 (大约511个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">iOS 端启动速度优化</h1><div class="content"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="应用启动流程">应用启动流程</h2>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><p><code>iOS</code>
+启动可以分为<code>pre-main</code>阶段和<code>main()</code>阶段</p>
+<p><span id="more"></span></p>
+<p>### <code>pre-main</code>阶段 * 加载可执行文件 * 加载动态链接库加载器
+<code>dyld</code> * 递归加载动态链接库 <code>dylib</code></p>
+<h3 id="main-阶段"><code>main</code> 阶段</h3>
+<ul>
 <li><code>dyld</code> 调用 <code>main</code></li>
 <li>调用 <code>UIApplicationMain</code></li>
 <li>调用 <code>applicationWillFinishLaunching</code></li>
 <li>调用 <code>didFinishLaunchingWithOptions</code></li>
 </ul>
-<h2 id="耗时测量"><a href="#耗时测量" class="headerlink" title="耗时测量"></a>耗时测量</h2><h3 id="pre-main-阶段"><a href="#pre-main-阶段" class="headerlink" title="pre-main 阶段"></a><code>pre-main</code> 阶段</h3><ul>
-<li><code>Xcode</code> 的环境变量中 <code>DYLD_PRINT_STATICTICS</code> = 1</li>
+<h2 id="耗时测量">耗时测量</h2>
+<h3 id="pre-main-阶段"><code>pre-main</code> 阶段</h3>
+<ul>
+<li><code>Xcode</code> 的环境变量中 <code>DYLD_PRINT_STATICTICS</code> =
+1</li>
 <li>日志里面会有详细的内容</li>
 </ul>
-<h3 id="main-阶段-1"><a href="#main-阶段-1" class="headerlink" title="main 阶段"></a><code>main</code> 阶段</h3><ul>
-<li>测量 <code>main</code>  -&gt; <code>didFinishLaunchingWithOptions</code> 的时间</li>
-</ul>
-<h3 id="优化思路"><a href="#优化思路" class="headerlink" title="优化思路"></a>优化思路</h3><ul>
-<li><code>dyld</code> 加载步骤<ul>
-<li><code>Load dylibs</code><blockquote>
-<p>分析依赖、<code>Mach-o</code>文件、验证有效性、代码签名注册到内核、对 <code>dylib</code> 的 <code>segment</code> 调用 <code>mmap</code></p>
+<h3 id="main-阶段-1"><code>main</code> 阶段</h3>
 <ul>
-<li>避免使用 <code>embedded dylib</code></li>
-<li>合并已有的 <code>dylib</code> , 使用静态库</li>
-<li>懒加载 <code>dylib</code></li>
+<li>测量 <code>main</code> -&gt;
+<code>didFinishLaunchingWithOptions</code> 的时间</li>
 </ul>
-</blockquote>
-</li>
-<li><code>Rebase/Bind</code><blockquote>
-<p><code>Rebase</code> 读入镜像、修正 <code>ASLR</code> 导致的内存地址的偏差。消耗在文件 <code>I/O</code>。<br><code>Bind</code> 查询符号表、设置镜像的外部指针。消耗在 <code>CPU</code> 计算</p>
+<h3 id="优化思路">优化思路</h3>
 <ul>
-<li>减少<code>ObjC</code>的 <code>Class</code> 、<code>Selector</code>、 <code>Category</code> 数量</li>
-<li>减少<code>C++</code> 虚函数数量（创建虚函数表有开销）</li>
-<li>使用 <code>Swift struct</code>（内部做了优化、符号开销少）</li>
-</ul>
-</blockquote>
-</li>
-<li><code>Object setup</code><blockquote>
-<p> <code>dyld</code> 会注册声明过的 <code>ObjC</code> 类，将分类方法插入到类的方法列表中、检查 <code>selector</code> 的唯一性</p>
-</blockquote>
-</li>
-<li><code>Initializers</code><blockquote>
-<p><code>dyld</code> 开始运行程序的初始化函数、调用每个 <code>ObjC</code> <code>类</code>和<code>分类</code>的 <code>+load</code> 方法，调用 <code>C/C++</code> 中的构造器函数 ( <code>__attibute__(constructor)</code>修饰的函数)， 创建非基本类型的 <code>C++</code> 静态全局变量，随后调用 <code>main</code> 函数</p>
+<li><code>dyld</code> 加载步骤
 <ul>
-<li>减少 <code>+load</code> 函数做的事情，推迟到 <code>+initialize</code> 中</li>
-<li>减少构造器函数的个数，在构造器函数里少作些事情</li>
-<li>减少 <code>C++</code> 静态全局变量个数</li>
+<li><code>Load dylibs</code> &gt;
+分析依赖、<code>Mach-o</code>文件、验证有效性、代码签名注册到内核、对
+<code>dylib</code> 的 <code>segment</code> 调用 <code>mmap</code> &gt; *
+避免使用 <code>embedded dylib</code> &gt; * 合并已有的
+<code>dylib</code> , 使用静态库 &gt; * 懒加载 <code>dylib</code></li>
+<li><code>Rebase/Bind</code> &gt; <code>Rebase</code> 读入镜像、修正
+<code>ASLR</code> 导致的内存地址的偏差。消耗在文件 <code>I/O</code>。
+&gt; <code>Bind</code> 查询符号表、设置镜像的外部指针。消耗在
+<code>CPU</code> 计算 &gt; * 减少<code>ObjC</code>的 <code>Class</code>
+、<code>Selector</code>、 <code>Category</code> 数量 &gt; *
+减少<code>C++</code> 虚函数数量（创建虚函数表有开销） &gt; * 使用
+<code>Swift struct</code>（内部做了优化、符号开销少）</li>
+<li><code>Object setup</code> &gt; <code>dyld</code> 会注册声明过的
+<code>ObjC</code> 类，将分类方法插入到类的方法列表中、检查
+<code>selector</code> 的唯一性</li>
+<li><code>Initializers</code> &gt; <code>dyld</code>
+开始运行程序的初始化函数、调用每个 <code>ObjC</code>
+<code>类</code>和<code>分类</code>的 <code>+load</code> 方法，调用
+<code>C/C++</code> 中的构造器函数 (
+<code>__attibute__(constructor)</code>修饰的函数)， 创建非基本类型的
+<code>C++</code> 静态全局变量，随后调用 <code>main</code> 函数 &gt; *
+减少 <code>+load</code> 函数做的事情，推迟到 <code>+initialize</code> 中
+&gt; * 减少构造器函数的个数，在构造器函数里少作些事情 &gt; * 减少
+<code>C++</code> 静态全局变量个数</li>
+</ul></li>
 </ul>
-</blockquote>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="main-阶段-2"><a href="#main-阶段-2" class="headerlink" title="main 阶段"></a>main 阶段</h3><blockquote>
-<p>减少 <code>didFinishLaunchingWithOptions</code> 方法里的事情</p>
-<ul>
-<li>梳理依赖库、延迟加载可以延迟加载的库</li>
-<li>把可以延迟执行的逻辑，放到后面。</li>
-<li>避免复杂/多余计算</li>
-<li>避免在 viewDidLoad 和 viewWillAppear中做太多的事情</li>
-<li>首页控制器用纯代码方式构建</li>
-</ul>
+<h3 id="main-阶段-2">main 阶段</h3>
+<blockquote>
+<p>减少 <code>didFinishLaunchingWithOptions</code> 方法里的事情 *
+梳理依赖库、延迟加载可以延迟加载的库 * 把可以延迟执行的逻辑，放到后面。
+* 避免复杂/多余计算 * 避免在 viewDidLoad 和 viewWillAppear中做太多的事情
+* 首页控制器用纯代码方式构建</p>
 </blockquote>
 </div><div class="article-licensing box"><div class="licensing-title"><p>iOS 端启动速度优化</p><p><a href="https://bapuqln.github.io/2020/02/19/iOS端启动速度优化/">https://bapuqln.github.io/2020/02/19/iOS端启动速度优化/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>shouyi.www</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2020-02-19</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2025-01-15</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/iOS/">iOS</a><a class="link-muted mr-2" rel="tag" href="/tags/%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6/">启动速度</a></div><div class="addthis_inline_share_toolbox"></div><script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f6a3085d629232a" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/images/alipay.JPG" alt="支付宝"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/images/wechatpay.JPG" alt="微信"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2020/04/17/SuperSign/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">SuperSign</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2019/12/29/Weakly-Contest-169/"><span class="level-item">Weakly Contest 169</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">评论</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
             id: "ca7d466862df9fa825149dcc1e177632",
