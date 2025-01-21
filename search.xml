@@ -76,55 +76,6 @@ except the number 0 itself.</p>
       </tags>
   </entry>
   <entry>
-    <title>Best Time To Buy Sell Stock IV</title>
-    <url>/2020/06/07/BestTimeToBuyAndSellStockIV/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
-<p><a
-href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/">Best
-Time to Buy and Sell Stock IV</a> Say you have an array for which the
-i-th element is the price of a given stock on day i.</p>
-<p>Design an algorithm to find the maximum profit. You may complete at
-most k transactions.</p>
-<p>Note: You may not engage in multiple transactions at the same time
-(ie, you must sell the stock before you buy again).</p>
-<p>Example 1: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [2,4,1], k = 2</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Buy on day 1 (price = 2) and sell on day 2 (price = 4), profit = 4-2 = 2.</span><br></pre></td></tr></table></figure> Example 2:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [3,2,6,5,0,3], k = 2</span><br><span class="line">Output: 7</span><br><span class="line">Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit = 6-2 = 4.</span><br><span class="line">             Then buy on day 5 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.</span><br></pre></td></tr></table></figure>
-<span id="more"></span>
-<h2 id="解题报告">解题报告</h2>
-<h3 id="思路">思路</h3>
-<ul>
-<li>获取收益肯定应该在地点买入，高点卖出，假定 <code>vally</code>
-表示低价格的索引，<code>peak</code> 表示高价格的索引，因此
-<code>(v1, p1)</code> 和 <code>(v2, p2)</code> 表示两个连续的
-<code>valley-peak</code> 的价格。考虑如下两个 case
-*<code>prices[v1] &lt;= prices[v2] &amp;&amp; prices[p1] &lt;= prices[p2]</code>，在该条件下，如果只能交易一次，那就是<code>(v1, p2)</code>。
-如果是两个交易，那就是<code>(v1, p1)</code> 和
-<code>(v2, p2)</code>。为了省事，将<code>(v1, p2)</code>看做为第一个交易，<code>(v2, p1)</code>
-看做第二个交易.</li>
-<li><code>prices[v1] &gt;= prices[v2] || prices[p1] &gt;= prices[p2]</code>，在该条件下，如果只能交易一次，要么就用<code>(v1,p1)</code>，要么就用
-<code>(v2,p2)</code>。如果是两次交易，就全部使用。</li>
-</ul>
-<h3 id="步骤">步骤</h3>
-<ul>
-<li>找到全部的交易，并且记录每一笔的收益，使用 <code>stack</code>
-记录每一对 <code>vally-peak</code> 。并且保证 <code>vally</code>
-是按照升序排列。所有的收益都放在 <code>vector</code>
-数组中，时间复杂度为 <code>O(n)</code>.</li>
-<li>找到前 <code>k</code> 个交易收益，时间复杂度为
-<code>O(n)</code></li>
-</ul>
-<h3 id="代码">代码</h3>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProfit</span><span class="params">(<span class="type">int</span> k, vector&lt;<span class="type">int</span>&gt;&amp; prices)</span></span>&#123;</span><br><span class="line">        <span class="type">const</span> <span class="type">int</span> m = prices.<span class="built_in">size</span>();</span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; profits;</span><br><span class="line">        stack&lt;pair&lt;<span class="type">int</span>,<span class="type">int</span>&gt;&gt; vps; <span class="comment">// vally-peak pairs</span></span><br><span class="line">        <span class="type">int</span> v = <span class="number">0</span>, p = <span class="number">-1</span>; <span class="comment">// padding p , so not using p-1</span></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="comment">// find next vally and peak</span></span><br><span class="line">            <span class="keyword">for</span> (v = p<span class="number">+1</span>; v<span class="number">+1</span> &lt; m &amp;&amp; (prices[v] &gt;= prices[v<span class="number">+1</span>]); v++);</span><br><span class="line">            <span class="keyword">for</span> (p = v;   p<span class="number">+1</span> &lt; m &amp;&amp; (prices[p] &gt;= prices[p<span class="number">-1</span>]); p++);</span><br><span class="line">            <span class="keyword">if</span> (v == p) <span class="keyword">break</span>; <span class="comment">// to the end of prices</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// v &lt; p</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// (v1,p1) (v2,p2)</span></span><br><span class="line">            <span class="comment">// if (prices[v1] &gt;= prices[v2]) no need to combine two transactions</span></span><br><span class="line">            <span class="comment">// after å top is (v1,p2), push p2-v1 into profit --&gt; step ∑</span></span><br><span class="line">            <span class="keyword">while</span> (!vps.<span class="built_in">empty</span>() &amp;&amp; (prices[v] &lt;= prics[vps.<span class="built_in">top</span>().first])) &#123;</span><br><span class="line">                profits.<span class="built_in">push_back</span>(prices[vps.<span class="built_in">top</span>().second] - prices[vps.<span class="built_in">top</span>().first]);</span><br><span class="line">                vps.<span class="built_in">pop</span>();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// (v1, p1) (v2,p2)</span></span><br><span class="line">            <span class="comment">// if (prices[v1] &lt; prices[v2] &amp;&amp; prices[p1] &lt; prices[p2]) we need to combine two transactions</span></span><br><span class="line">            <span class="comment">// update (v1,p1) --&gt; (v1, p2)</span></span><br><span class="line">            <span class="comment">// p2-v2 + p1-v1 == p2-v1 + p1-v2</span></span><br><span class="line">            <span class="comment">// after step ∑ top is (v1, p2)</span></span><br><span class="line">            <span class="keyword">while</span> (!vps.<span class="built_in">empty</span>() &amp;&amp; (prices[p] &gt;= prices[vps.<span class="built_in">top</span>().second])) &#123;</span><br><span class="line">                <span class="comment">// save profit (v2, p1)</span></span><br><span class="line">                profits.<span class="built_in">push_back</span>(prices[vps.<span class="built_in">top</span>().second] - prices[v]);</span><br><span class="line">                <span class="comment">// v1 --&gt; v</span></span><br><span class="line">                v = vps.<span class="built_in">top</span>()first;</span><br><span class="line">                vps.<span class="built_in">pop</span>();</span><br><span class="line">                <span class="comment">// v is v1</span></span><br><span class="line">                <span class="comment">// p is p2</span></span><br><span class="line">                <span class="comment">// step å</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// if step å  (v1, p2) is top of vps</span></span><br><span class="line">            vps.<span class="built_in">push</span>(<span class="built_in">make_pair</span>(v, p));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// calculate all the profits</span></span><br><span class="line">    <span class="keyword">while</span> (!vps.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">        profits.<span class="built_in">push_back</span>(prices[vps.<span class="built_in">top</span>().second] - prices[vps.<span class="built_in">top</span>().first]);</span><br><span class="line">        vps.<span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// calculate k highest profitœ</span></span><br><span class="line">    <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> n = profits.<span class="built_in">size</span>();</span><br><span class="line">    <span class="keyword">if</span> (n &lt; = k) &#123;</span><br><span class="line">        <span class="built_in">accumulate</span>(profits.<span class="built_in">begin</span>(), profits.<span class="built_in">end</span>(), <span class="number">0</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">nth_element</span>(profits.<span class="built_in">begin</span>(), profits.<span class="built_in">end</span>() - k, profits.<span class="built_in">end</span>());</span><br><span class="line">        <span class="built_in">accumulate</span>(profits.<span class="built_in">end</span>() - k,profit.<span class="built_in">end</span>(), <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>LeetCode</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>Hard</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Basic Calculator</title>
     <url>/2020/06/12/BasicCalculator/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
@@ -172,45 +123,6 @@ not use the eval built-in library function.</p>
       <tags>
         <tag>LeetCode</tag>
         <tag>Hard</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>位操作</title>
-    <url>/2020/08/11/BitManupulate/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p><span id="more"></span></p>
-<h1 id="位操作总结">位操作总结</h1>
-<p>基本上位操作就那么几个:</p>
-<h2 id="异或的特性">异或的特性</h2>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">x ^ <span class="number">0</span> = x</span><br><span class="line"></span><br><span class="line">x ^ <span class="number">11111</span>……<span class="number">1111</span> = ~x</span><br><span class="line"></span><br><span class="line">x ^ (~x) = <span class="number">11111</span>……<span class="number">1111</span></span><br><span class="line"></span><br><span class="line">x ^ x = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">a ^ b = c =&gt; a ^ c = b =&gt; b ^ c = <span class="built_in">a</span> (交换律) a ^ b ^ c = a ^ (b ^ c) = (a ^ b）^ <span class="built_in">c</span> (结合律)</span><br></pre></td></tr></table></figure>
-<h2 id="构造特殊的mask">构造特殊的Mask</h2>
-<ul>
-<li>将 <code>x</code> 最右边的 <code>n</code> 位清零，
-<code>x &amp; ( ~0 &lt;&lt; n )</code></li>
-<li>获取 <code>x</code> 的第 <code>n</code> 位值(0 或者
-1)，<code>(x &gt;&gt; n) &amp; 1</code></li>
-<li>获取 <code>x</code> 的第 <code>n</code>
-位的幂值，<code>x &amp; (1 &lt;&lt; (n - 1))</code></li>
-<li>仅将第 <code>n</code> 位置为
-<code>1</code>，<code>x | (1 &lt;&lt; n)</code></li>
-<li>仅将第 <code>n</code> 位置为
-<code>0</code>，<code>x &amp; (~(1 &lt;&lt; n))</code></li>
-<li>将 <code>x</code> 最⾼位⾄第 <code>n</code>
-位(含)清零，<code>x &amp; ((1 &lt;&lt; n) - 1)</code></li>
-<li>将第 <code>n</code> 位⾄第 <code>0</code>
-位(含)清零，<code>x &amp; (~((1 &lt;&lt; (n + 1)) - 1)</code></li>
-</ul>
-<h2 id="section"></h2>
-<p><code>X &amp; 1 == 1</code> 判断是否是奇数(偶数)
-<code>X &amp; = (X - 1)</code> 将最低位(LSB)的 1 清零
-<code>X &amp; -X</code> 得到最低位(LSB)的 1</p>
-<p><code>X &amp; ~X = 0</code></p>
-]]></content>
-      <categories>
-        <category>LeetCode</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>Bit Manupulate</tag>
       </tags>
   </entry>
   <entry>
@@ -264,6 +176,109 @@ not use the eval built-in library function.</p>
       </tags>
   </entry>
   <entry>
+    <title>位操作</title>
+    <url>/2020/08/11/BitManupulate/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p><span id="more"></span></p>
+<h1 id="位操作总结">位操作总结</h1>
+<p>基本上位操作就那么几个:</p>
+<h2 id="异或的特性">异或的特性</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">x ^ <span class="number">0</span> = x</span><br><span class="line"></span><br><span class="line">x ^ <span class="number">11111</span>……<span class="number">1111</span> = ~x</span><br><span class="line"></span><br><span class="line">x ^ (~x) = <span class="number">11111</span>……<span class="number">1111</span></span><br><span class="line"></span><br><span class="line">x ^ x = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">a ^ b = c =&gt; a ^ c = b =&gt; b ^ c = <span class="built_in">a</span> (交换律) a ^ b ^ c = a ^ (b ^ c) = (a ^ b）^ <span class="built_in">c</span> (结合律)</span><br></pre></td></tr></table></figure>
+<h2 id="构造特殊的mask">构造特殊的Mask</h2>
+<ul>
+<li>将 <code>x</code> 最右边的 <code>n</code> 位清零，
+<code>x &amp; ( ~0 &lt;&lt; n )</code></li>
+<li>获取 <code>x</code> 的第 <code>n</code> 位值(0 或者
+1)，<code>(x &gt;&gt; n) &amp; 1</code></li>
+<li>获取 <code>x</code> 的第 <code>n</code>
+位的幂值，<code>x &amp; (1 &lt;&lt; (n - 1))</code></li>
+<li>仅将第 <code>n</code> 位置为
+<code>1</code>，<code>x | (1 &lt;&lt; n)</code></li>
+<li>仅将第 <code>n</code> 位置为
+<code>0</code>，<code>x &amp; (~(1 &lt;&lt; n))</code></li>
+<li>将 <code>x</code> 最⾼位⾄第 <code>n</code>
+位(含)清零，<code>x &amp; ((1 &lt;&lt; n) - 1)</code></li>
+<li>将第 <code>n</code> 位⾄第 <code>0</code>
+位(含)清零，<code>x &amp; (~((1 &lt;&lt; (n + 1)) - 1)</code></li>
+</ul>
+<h2 id="section"></h2>
+<p><code>X &amp; 1 == 1</code> 判断是否是奇数(偶数)
+<code>X &amp; = (X - 1)</code> 将最低位(LSB)的 1 清零
+<code>X &amp; -X</code> 得到最低位(LSB)的 1</p>
+<p><code>X &amp; ~X = 0</code></p>
+]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Bit Manupulate</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Best Time To Buy Sell Stock IV</title>
+    <url>/2020/06/07/BestTimeToBuyAndSellStockIV/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
+<p><a
+href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/">Best
+Time to Buy and Sell Stock IV</a> Say you have an array for which the
+i-th element is the price of a given stock on day i.</p>
+<p>Design an algorithm to find the maximum profit. You may complete at
+most k transactions.</p>
+<p>Note: You may not engage in multiple transactions at the same time
+(ie, you must sell the stock before you buy again).</p>
+<p>Example 1: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [2,4,1], k = 2</span><br><span class="line">Output: 2</span><br><span class="line">Explanation: Buy on day 1 (price = 2) and sell on day 2 (price = 4), profit = 4-2 = 2.</span><br></pre></td></tr></table></figure> Example 2:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [3,2,6,5,0,3], k = 2</span><br><span class="line">Output: 7</span><br><span class="line">Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit = 6-2 = 4.</span><br><span class="line">             Then buy on day 5 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<h2 id="解题报告">解题报告</h2>
+<h3 id="思路">思路</h3>
+<ul>
+<li>获取收益肯定应该在地点买入，高点卖出，假定 <code>vally</code>
+表示低价格的索引，<code>peak</code> 表示高价格的索引，因此
+<code>(v1, p1)</code> 和 <code>(v2, p2)</code> 表示两个连续的
+<code>valley-peak</code> 的价格。考虑如下两个 case
+*<code>prices[v1] &lt;= prices[v2] &amp;&amp; prices[p1] &lt;= prices[p2]</code>，在该条件下，如果只能交易一次，那就是<code>(v1, p2)</code>。
+如果是两个交易，那就是<code>(v1, p1)</code> 和
+<code>(v2, p2)</code>。为了省事，将<code>(v1, p2)</code>看做为第一个交易，<code>(v2, p1)</code>
+看做第二个交易.</li>
+<li><code>prices[v1] &gt;= prices[v2] || prices[p1] &gt;= prices[p2]</code>，在该条件下，如果只能交易一次，要么就用<code>(v1,p1)</code>，要么就用
+<code>(v2,p2)</code>。如果是两次交易，就全部使用。</li>
+</ul>
+<h3 id="步骤">步骤</h3>
+<ul>
+<li>找到全部的交易，并且记录每一笔的收益，使用 <code>stack</code>
+记录每一对 <code>vally-peak</code> 。并且保证 <code>vally</code>
+是按照升序排列。所有的收益都放在 <code>vector</code>
+数组中，时间复杂度为 <code>O(n)</code>.</li>
+<li>找到前 <code>k</code> 个交易收益，时间复杂度为
+<code>O(n)</code></li>
+</ul>
+<h3 id="代码">代码</h3>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">maxProfit</span><span class="params">(<span class="type">int</span> k, vector&lt;<span class="type">int</span>&gt;&amp; prices)</span></span>&#123;</span><br><span class="line">        <span class="type">const</span> <span class="type">int</span> m = prices.<span class="built_in">size</span>();</span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; profits;</span><br><span class="line">        stack&lt;pair&lt;<span class="type">int</span>,<span class="type">int</span>&gt;&gt; vps; <span class="comment">// vally-peak pairs</span></span><br><span class="line">        <span class="type">int</span> v = <span class="number">0</span>, p = <span class="number">-1</span>; <span class="comment">// padding p , so not using p-1</span></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="comment">// find next vally and peak</span></span><br><span class="line">            <span class="keyword">for</span> (v = p<span class="number">+1</span>; v<span class="number">+1</span> &lt; m &amp;&amp; (prices[v] &gt;= prices[v<span class="number">+1</span>]); v++);</span><br><span class="line">            <span class="keyword">for</span> (p = v;   p<span class="number">+1</span> &lt; m &amp;&amp; (prices[p] &gt;= prices[p<span class="number">-1</span>]); p++);</span><br><span class="line">            <span class="keyword">if</span> (v == p) <span class="keyword">break</span>; <span class="comment">// to the end of prices</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// v &lt; p</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// (v1,p1) (v2,p2)</span></span><br><span class="line">            <span class="comment">// if (prices[v1] &gt;= prices[v2]) no need to combine two transactions</span></span><br><span class="line">            <span class="comment">// after å top is (v1,p2), push p2-v1 into profit --&gt; step ∑</span></span><br><span class="line">            <span class="keyword">while</span> (!vps.<span class="built_in">empty</span>() &amp;&amp; (prices[v] &lt;= prics[vps.<span class="built_in">top</span>().first])) &#123;</span><br><span class="line">                profits.<span class="built_in">push_back</span>(prices[vps.<span class="built_in">top</span>().second] - prices[vps.<span class="built_in">top</span>().first]);</span><br><span class="line">                vps.<span class="built_in">pop</span>();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// (v1, p1) (v2,p2)</span></span><br><span class="line">            <span class="comment">// if (prices[v1] &lt; prices[v2] &amp;&amp; prices[p1] &lt; prices[p2]) we need to combine two transactions</span></span><br><span class="line">            <span class="comment">// update (v1,p1) --&gt; (v1, p2)</span></span><br><span class="line">            <span class="comment">// p2-v2 + p1-v1 == p2-v1 + p1-v2</span></span><br><span class="line">            <span class="comment">// after step ∑ top is (v1, p2)</span></span><br><span class="line">            <span class="keyword">while</span> (!vps.<span class="built_in">empty</span>() &amp;&amp; (prices[p] &gt;= prices[vps.<span class="built_in">top</span>().second])) &#123;</span><br><span class="line">                <span class="comment">// save profit (v2, p1)</span></span><br><span class="line">                profits.<span class="built_in">push_back</span>(prices[vps.<span class="built_in">top</span>().second] - prices[v]);</span><br><span class="line">                <span class="comment">// v1 --&gt; v</span></span><br><span class="line">                v = vps.<span class="built_in">top</span>()first;</span><br><span class="line">                vps.<span class="built_in">pop</span>();</span><br><span class="line">                <span class="comment">// v is v1</span></span><br><span class="line">                <span class="comment">// p is p2</span></span><br><span class="line">                <span class="comment">// step å</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// if step å  (v1, p2) is top of vps</span></span><br><span class="line">            vps.<span class="built_in">push</span>(<span class="built_in">make_pair</span>(v, p));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// calculate all the profits</span></span><br><span class="line">    <span class="keyword">while</span> (!vps.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">        profits.<span class="built_in">push_back</span>(prices[vps.<span class="built_in">top</span>().second] - prices[vps.<span class="built_in">top</span>().first]);</span><br><span class="line">        vps.<span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// calculate k highest profitœ</span></span><br><span class="line">    <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> n = profits.<span class="built_in">size</span>();</span><br><span class="line">    <span class="keyword">if</span> (n &lt; = k) &#123;</span><br><span class="line">        <span class="built_in">accumulate</span>(profits.<span class="built_in">begin</span>(), profits.<span class="built_in">end</span>(), <span class="number">0</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">nth_element</span>(profits.<span class="built_in">begin</span>(), profits.<span class="built_in">end</span>() - k, profits.<span class="built_in">end</span>());</span><br><span class="line">        <span class="built_in">accumulate</span>(profits.<span class="built_in">end</span>() - k,profit.<span class="built_in">end</span>(), <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ans;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Hard</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C++ 对象序列化</title>
+    <url>/2019/11/22/C-Object-Serialization/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="背景">背景</h1>
+<p>最近做的项目需要对C++对象进行序列化和反序列化，最主要的目的是将JSON和C++对象互转。</p>
+<span id="more"></span>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;tuple&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// sequence for</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, T... S, <span class="keyword">typename</span> F&gt;</span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="type">void</span> <span class="title">for_sequence</span><span class="params">(std::integer_sequence&lt;T, S...&gt;, F&amp;&amp; f)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="type">unpack_t</span> = <span class="type">int</span>[];</span><br><span class="line">    (<span class="type">void</span>)<span class="type">unpack_t</span>&#123;(<span class="built_in">static_cast</span>&lt;<span class="type">void</span>&gt;(<span class="built_in">f</span>(std::integral_constant&lt;T, S&gt;&#123;&#125;)), <span class="number">0</span>)..., <span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Sample implementation of a json-like data structure. It is only there for the example to compile and actually produce a testable output</span></span><br><span class="line"><span class="keyword">namespace</span> Json &#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Value</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">ValueData</span> &#123;</span><br><span class="line">        std::map&lt;std::string, Value&gt; subObject;</span><br><span class="line">        std::string string;</span><br><span class="line">        <span class="type">int</span> number = <span class="number">0</span>;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Value</span> &#123;</span><br><span class="line">        ValueData data;</span><br><span class="line"></span><br><span class="line">        Value&amp; <span class="keyword">operator</span>[](std::string name) &#123;</span><br><span class="line">            <span class="keyword">return</span> data.subObject[std::<span class="built_in">move</span>(name)];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">const</span> Value&amp; <span class="keyword">operator</span>[](std::string name) <span class="type">const</span> &#123;</span><br><span class="line">            <span class="keyword">auto</span> it = data.subObject.<span class="built_in">find</span>(std::<span class="built_in">move</span>(name));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (it != data.subObject.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                <span class="keyword">return</span> it-&gt;second;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">throw</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Value&amp; <span class="keyword">operator</span>=(std::string value) &#123;</span><br><span class="line">            data.string = value;</span><br><span class="line">            <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Value&amp; <span class="keyword">operator</span>=(<span class="type">double</span> value) &#123;</span><br><span class="line">            data.number = value;</span><br><span class="line">            <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; T&amp; <span class="title">asAny</span><span class="params">(Value&amp;)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="type">const</span> T&amp; <span class="title">asAny</span><span class="params">(<span class="type">const</span> Value&amp;)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    <span class="type">int</span>&amp; <span class="built_in">asAny</span>&lt;<span class="type">int</span>&gt;(Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.number;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span>&amp; <span class="built_in">asAny</span>&lt;<span class="type">int</span>&gt;(<span class="type">const</span> Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.number;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    <span class="type">const</span> std::string&amp; <span class="built_in">asAny</span>&lt;std::string&gt;(<span class="type">const</span> Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.string;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    std::string&amp; <span class="built_in">asAny</span>&lt;std::string&gt;(Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.string;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Class, <span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">PropertyImpl</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">constexpr</span> <span class="title">PropertyImpl</span><span class="params">(T Class::*aMember, <span class="type">const</span> <span class="type">char</span>* aName)</span> : member&#123;</span>aMember&#125;, name&#123;aName&#125; &#123;&#125;</span><br><span class="line">    <span class="keyword">using</span> Type = T;</span><br><span class="line">    T Class::*member;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* name;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// One could overload this function to accept both a getter and a setter instead of a member.</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Class, <span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <span class="title">property</span><span class="params">(T Class::*member, <span class="type">const</span> <span class="type">char</span>* name)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> PropertyImpl&lt;Class, T&gt;&#123;member, name&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// unserialize function</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">T <span class="title">fromJson</span><span class="params">(<span class="type">const</span> Json::Value&amp; data)</span> </span>&#123;</span><br><span class="line">    T object;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We first get the number of properties</span></span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> nbProperties = std::tuple_size&lt;<span class="keyword">decltype</span>(T::properties)&gt;::value;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We iterate on the index sequence of size `nbProperties`</span></span><br><span class="line">    for_sequence(std::make_index_sequence&lt;nbProperties&gt;&#123;&#125;, [&amp;](<span class="keyword">auto</span> i)&#123;</span><br><span class="line">        <span class="comment">// get the property</span></span><br><span class="line">        <span class="keyword">constexpr</span> <span class="keyword">auto</span> property = std::<span class="built_in">get</span>&lt;i&gt;(T::properties);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// get the type of the property</span></span><br><span class="line">        <span class="keyword">using</span> Type = <span class="keyword">typename</span> <span class="keyword">decltype</span>(property)::Type;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// set the value to the member</span></span><br><span class="line">        object.*(property.member) = Json::<span class="built_in">asAny</span>&lt;Type&gt;(data[property.name]);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> object;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">Json::Value <span class="title">toJson</span><span class="params">(<span class="type">const</span> T&amp; object)</span> </span>&#123;</span><br><span class="line">    Json::Value data;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We first get the number of properties</span></span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> nbProperties = std::tuple_size&lt;<span class="keyword">decltype</span>(T::properties)&gt;::value;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We iterate on the index sequence of size `nbProperties`</span></span><br><span class="line">    for_sequence(std::make_index_sequence&lt;nbProperties&gt;&#123;&#125;, [&amp;](<span class="keyword">auto</span> i)&#123;</span><br><span class="line">        <span class="comment">// get the property</span></span><br><span class="line">        <span class="keyword">constexpr</span> <span class="keyword">auto</span> property = std::<span class="built_in">get</span>&lt;i&gt;(T::properties);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// set the value to the member</span></span><br><span class="line">        data[property.name] = object.*(property.member);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> animal &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Dog</span> &#123;</span><br><span class="line">        std::string barkType;</span><br><span class="line">        std::string color;</span><br><span class="line">        <span class="type">int</span> weight = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">bool</span> <span class="keyword">operator</span>==(<span class="type">const</span> Dog&amp; rhs) <span class="type">const</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> barkType == rhs.barkType &amp;&amp; color == rhs.color &amp;&amp; weight == rhs.weight;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">constexpr</span> <span class="type">static</span> <span class="keyword">auto</span> properties = std::<span class="built_in">make_tuple</span>(<span class="built_in">property</span>(&amp;Dog::barkType, <span class="string">&quot;barkType&quot;</span>), <span class="built_in">property</span>(&amp;Dog::color, <span class="string">&quot;color&quot;</span>), <span class="built_in">property</span>(&amp;Dog::weight, <span class="string">&quot;weight&quot;</span>));</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    animal::Dog dog;</span><br><span class="line"></span><br><span class="line">    dog.color = <span class="string">&quot;green&quot;</span>;</span><br><span class="line">    dog.barkType = <span class="string">&quot;whaf&quot;</span>;</span><br><span class="line">    dog.weight = <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line">    Json::Value jsonDog = <span class="built_in">toJson</span>(dog); <span class="comment">// produces &#123;&quot;color&quot;:&quot;green&quot;, &quot;barkType&quot;:&quot;whaf&quot;, &quot;weight&quot;: 30&#125;</span></span><br><span class="line">    <span class="keyword">auto</span> dog2 = <span class="built_in">fromJson</span>&lt;animal::Dog&gt;(jsonDog);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; std::boolalpha &lt;&lt; (dog == dog2) &lt;&lt; __FILE_NAME__ &lt;&lt; std::endl; <span class="comment">// pass the test, both dog are equal!</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Boyer Moore Majority Vote Algorithm</title>
     <url>/2019/11/22/BoyerMooreMajorityVoteAlgorithm/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
@@ -314,18 +329,70 @@ candidate，如果相等：count+1，如果不等 count-1 &gt;
       </tags>
   </entry>
   <entry>
-    <title>C++ 对象序列化</title>
-    <url>/2019/11/22/C-Object-Serialization/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="背景">背景</h1>
-<p>最近做的项目需要对C++对象进行序列化和反序列化，最主要的目的是将JSON和C++对象互转。</p>
+    <title>探索 NSDictionary</title>
+    <url>/2019/12/04/Dive-Into-NSDictionary/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="exposing-nsdictinoary">Exposing NSDictinoary</h1>
+<h2 id="the-class">The Class</h2>
+<p>相当多的类都是 class clusters，当然 NSDictionary
+也不例外，曾经一段时间 NSDictinoary 使用了 CFDictionary
+作为它的默认实现。然而，在 iOS 6以后事情改变了。。。</p>
 <span id="more"></span>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;tuple&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// sequence for</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, T... S, <span class="keyword">typename</span> F&gt;</span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="type">void</span> <span class="title">for_sequence</span><span class="params">(std::integer_sequence&lt;T, S...&gt;, F&amp;&amp; f)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="type">unpack_t</span> = <span class="type">int</span>[];</span><br><span class="line">    (<span class="type">void</span>)<span class="type">unpack_t</span>&#123;(<span class="built_in">static_cast</span>&lt;<span class="type">void</span>&gt;(<span class="built_in">f</span>(std::integral_constant&lt;T, S&gt;&#123;&#125;)), <span class="number">0</span>)..., <span class="number">0</span>&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Sample implementation of a json-like data structure. It is only there for the example to compile and actually produce a testable output</span></span><br><span class="line"><span class="keyword">namespace</span> Json &#123;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Value</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">ValueData</span> &#123;</span><br><span class="line">        std::map&lt;std::string, Value&gt; subObject;</span><br><span class="line">        std::string string;</span><br><span class="line">        <span class="type">int</span> number = <span class="number">0</span>;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Value</span> &#123;</span><br><span class="line">        ValueData data;</span><br><span class="line"></span><br><span class="line">        Value&amp; <span class="keyword">operator</span>[](std::string name) &#123;</span><br><span class="line">            <span class="keyword">return</span> data.subObject[std::<span class="built_in">move</span>(name)];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">const</span> Value&amp; <span class="keyword">operator</span>[](std::string name) <span class="type">const</span> &#123;</span><br><span class="line">            <span class="keyword">auto</span> it = data.subObject.<span class="built_in">find</span>(std::<span class="built_in">move</span>(name));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (it != data.subObject.<span class="built_in">end</span>()) &#123;</span><br><span class="line">                <span class="keyword">return</span> it-&gt;second;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">throw</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Value&amp; <span class="keyword">operator</span>=(std::string value) &#123;</span><br><span class="line">            data.string = value;</span><br><span class="line">            <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Value&amp; <span class="keyword">operator</span>=(<span class="type">double</span> value) &#123;</span><br><span class="line">            data.number = value;</span><br><span class="line">            <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; T&amp; <span class="title">asAny</span><span class="params">(Value&amp;)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="type">const</span> T&amp; <span class="title">asAny</span><span class="params">(<span class="type">const</span> Value&amp;)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    <span class="type">int</span>&amp; <span class="built_in">asAny</span>&lt;<span class="type">int</span>&gt;(Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.number;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span>&amp; <span class="built_in">asAny</span>&lt;<span class="type">int</span>&gt;(<span class="type">const</span> Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.number;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    <span class="type">const</span> std::string&amp; <span class="built_in">asAny</span>&lt;std::string&gt;(<span class="type">const</span> Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.string;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">template</span>&lt;&gt;</span><br><span class="line">    std::string&amp; <span class="built_in">asAny</span>&lt;std::string&gt;(Value&amp; value) &#123;</span><br><span class="line">        <span class="keyword">return</span> value.data.string;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Class, <span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">PropertyImpl</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">constexpr</span> <span class="title">PropertyImpl</span><span class="params">(T Class::*aMember, <span class="type">const</span> <span class="type">char</span>* aName)</span> : member&#123;</span>aMember&#125;, name&#123;aName&#125; &#123;&#125;</span><br><span class="line">    <span class="keyword">using</span> Type = T;</span><br><span class="line">    T Class::*member;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* name;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// One could overload this function to accept both a getter and a setter instead of a member.</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Class, <span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="keyword">auto</span> <span class="title">property</span><span class="params">(T Class::*member, <span class="type">const</span> <span class="type">char</span>* name)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> PropertyImpl&lt;Class, T&gt;&#123;member, name&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// unserialize function</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">T <span class="title">fromJson</span><span class="params">(<span class="type">const</span> Json::Value&amp; data)</span> </span>&#123;</span><br><span class="line">    T object;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We first get the number of properties</span></span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> nbProperties = std::tuple_size&lt;<span class="keyword">decltype</span>(T::properties)&gt;::value;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We iterate on the index sequence of size `nbProperties`</span></span><br><span class="line">    for_sequence(std::make_index_sequence&lt;nbProperties&gt;&#123;&#125;, [&amp;](<span class="keyword">auto</span> i)&#123;</span><br><span class="line">        <span class="comment">// get the property</span></span><br><span class="line">        <span class="keyword">constexpr</span> <span class="keyword">auto</span> property = std::<span class="built_in">get</span>&lt;i&gt;(T::properties);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// get the type of the property</span></span><br><span class="line">        <span class="keyword">using</span> Type = <span class="keyword">typename</span> <span class="keyword">decltype</span>(property)::Type;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// set the value to the member</span></span><br><span class="line">        object.*(property.member) = Json::<span class="built_in">asAny</span>&lt;Type&gt;(data[property.name]);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> object;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">Json::Value <span class="title">toJson</span><span class="params">(<span class="type">const</span> T&amp; object)</span> </span>&#123;</span><br><span class="line">    Json::Value data;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We first get the number of properties</span></span><br><span class="line">    <span class="keyword">constexpr</span> <span class="keyword">auto</span> nbProperties = std::tuple_size&lt;<span class="keyword">decltype</span>(T::properties)&gt;::value;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We iterate on the index sequence of size `nbProperties`</span></span><br><span class="line">    for_sequence(std::make_index_sequence&lt;nbProperties&gt;&#123;&#125;, [&amp;](<span class="keyword">auto</span> i)&#123;</span><br><span class="line">        <span class="comment">// get the property</span></span><br><span class="line">        <span class="keyword">constexpr</span> <span class="keyword">auto</span> property = std::<span class="built_in">get</span>&lt;i&gt;(T::properties);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// set the value to the member</span></span><br><span class="line">        data[property.name] = object.*(property.member);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> animal &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">Dog</span> &#123;</span><br><span class="line">        std::string barkType;</span><br><span class="line">        std::string color;</span><br><span class="line">        <span class="type">int</span> weight = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">bool</span> <span class="keyword">operator</span>==(<span class="type">const</span> Dog&amp; rhs) <span class="type">const</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> barkType == rhs.barkType &amp;&amp; color == rhs.color &amp;&amp; weight == rhs.weight;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">constexpr</span> <span class="type">static</span> <span class="keyword">auto</span> properties = std::<span class="built_in">make_tuple</span>(<span class="built_in">property</span>(&amp;Dog::barkType, <span class="string">&quot;barkType&quot;</span>), <span class="built_in">property</span>(&amp;Dog::color, <span class="string">&quot;color&quot;</span>), <span class="built_in">property</span>(&amp;Dog::weight, <span class="string">&quot;weight&quot;</span>));</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    animal::Dog dog;</span><br><span class="line"></span><br><span class="line">    dog.color = <span class="string">&quot;green&quot;</span>;</span><br><span class="line">    dog.barkType = <span class="string">&quot;whaf&quot;</span>;</span><br><span class="line">    dog.weight = <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line">    Json::Value jsonDog = <span class="built_in">toJson</span>(dog); <span class="comment">// produces &#123;&quot;color&quot;:&quot;green&quot;, &quot;barkType&quot;:&quot;whaf&quot;, &quot;weight&quot;: 30&#125;</span></span><br><span class="line">    <span class="keyword">auto</span> dog2 = <span class="built_in">fromJson</span>&lt;animal::Dog&gt;(jsonDog);</span><br><span class="line"></span><br><span class="line">    std::cout &lt;&lt; std::boolalpha &lt;&lt; (dog == dog2) &lt;&lt; __FILE_NAME__ &lt;&lt; std::endl; <span class="comment">// pass the test, both dog are equal!</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(lldb) po [[NSDictionary new] class]</span><br><span class="line">__NSDictionaryI</span><br></pre></td></tr></table></figure>
+<p>和 __NSArrayM 一样， __NSDictionaryI 也是在 CoreFoundation Framework
+中：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@interface __NSDictionaryI : NSDictionary</span><br><span class="line">&#123;</span><br><span class="line">    NSUIngeter _used:58;</span><br><span class="line">    NSUIngeter _szidx:6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="the-storage">The Storage</h2>
+<h3 id="instance-creation">Instance Creation</h3>
+<p>想要理解 __NSDictionaryI
+在哪里保存内容，我们来看看对象创建的过程，只有一个类方法负责创建实例：<code>__NSDictionaryI</code>。根据
+class-dump 的输出，方法有如下的签名：</p>
+<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (id)__new:(const id *)arg1:(const id *)arg2:(unsigned long long)arg3:(_Bool)arg4:(_Bool)arg5;</span><br></pre></td></tr></table></figure></p>
+<p>他需要5各参数，只有第一个是指名字，如果我们使用@selector
+的方式来写的话，应该是这样
+<code>@selector(__new:::::)</code>。前三个参数通过设置断点，然后看一下寄存器
+x2、x3、x4的内容，看到他们是分别是：array 的 key、array 的
+object、key（object） 的个数。注意和对外公布的 api
+相比，参数的位置是互换的。</p>
+<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (instancetype)dictionaryWithObjects:(const id [])objects forKeys:(const id &lt;NSCopying&gt; [])keys count:(NSUInteger)cnt;</span><br></pre></td></tr></table></figure></p>
+<p>其实参数定义为<code>const id *</code>或者<code>const id []</code>没有太大的关系。剩下的就是两个BOOL
+类型的参数。第四个参数是指 key
+是否需要被拷贝。第五个参数决定了参数是否不需要被
+retain。我们可以重写该函数：</p>
+<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (id)__new:(const id *)keys :(const id *)objects :(unsigned long long)count :(_Bool)copyKeys :(_Bool)dontRetain;</span><br></pre></td></tr></table></figure></p>
+<h3 id="indexed-ivars">Indexed ivars</h3>
+<p>除了函数<code>+ __new:::::</code>以外，<code>malloc</code> 和
+<code>calloc</code> 并没有地方被调用。实际上，函数调用了
+<code>__CFAllocateObject2</code> 方法，并且传递了
+<code>__NSDictionaryI</code>
+作为第一个参数，然后用需要的大小作为第二个参数。<code>__CFAllocateObject2</code>
+实际上调用了 <code>class_createInstance</code>
+，然后把同样的参数传给他。</p>
+<p>class_createInstance(Class cls, size_t extraBytes) 调用了
+_class_createInstanceFromZone 并且传个 nil 作为 zone 的参数。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">_class_createInstanceFromZone(Class cls, size_t extraBytes, void *zone)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    size_t size = cls-&gt;alignedInstanceSize() + extraBytes;</span><br><span class="line">    ...</span><br><span class="line">    id obj = (id)calloc(1, size);</span><br><span class="line">    ...</span><br><span class="line">    return obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>extreBytes 参数，calloc 函数调用确保了所有的 ivar 都是 0.</p>
+<p>indexed ivars就是在普通的 ivar 后面<img
+src="/images/14919793823550/14919859011959.jpg" /></p>
+<p>剩下的就是分配内存了</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">void *object_getIndexedIvars(id obj)</span><br></pre></td></tr></table></figure>
+<p><img src="/images/14919793823550/14919866880631.jpg" /></p>
+<p>关于 indexed ivar 有一些比较好玩的事情。 *
+每一个实例都可以有不同数量的 extraBytes指向他 * 存取速度很快。 * 可以对
+class-dump 这样的工具隐藏实现细节。</p>
+<p>但是：在 arc 环境下是不能直接编译 class_createInstance，需要增加
+-fno-objc-arc 标志位。。运行时没有保存 indexed ivars 信息。</p>
+<h2 id="key-访问一个对象">key &amp; 访问一个对象</h2>
+<h3 id="c-code">C Code</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">- (id)objectForKey:(id)aKey</span><br><span class="line">&#123;</span><br><span class="line">    NSUInteger sizeIndex = _szidx;</span><br><span class="line">    NSUInteger size = __NSDictionarySizes[sizeIndex];</span><br><span class="line"></span><br><span class="line">    id *storage = (id *)object_getIndexedIvars(dict);</span><br><span class="line"></span><br><span class="line">    NSUInteger fetchIndex = [aKey hash] % size;</span><br><span class="line"></span><br><span class="line">    for (int i = 0; i &lt; size; i++) &#123;</span><br><span class="line">        id fetchedKey = storage[2 * fetchIndex];</span><br><span class="line"></span><br><span class="line">        if (fetchedKey == nil) &#123;</span><br><span class="line">            return nil;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (fetchedKey == aKey || [fetchedKey isEqual:aKey]) &#123;</span><br><span class="line">            return storage[2 * fetchIndex + 1];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        fetchIndex++;</span><br><span class="line"></span><br><span class="line">        if (fetchIndex == size) &#123;</span><br><span class="line">            fetchIndex = 0;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return nil;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码是从汇编反推出来的。</p>
+<p><img src="/images/14919793823550/14919872407257.jpg" /></p>
 ]]></content>
       <categories>
-        <category>C++</category>
+        <category>瞎逼逼</category>
       </categories>
       <tags>
-        <tag>C++</tag>
+        <tag>iOS</tag>
+        <tag>NSDictionary</tag>
       </tags>
   </entry>
   <entry>
@@ -392,6 +459,146 @@ integers.</p>
       <tags>
         <tag>iOS</tag>
         <tag>FishHook</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Find K-th Smallest Pair Distance</title>
+    <url>/2020/07/04/FindKtheSmallestPairDistance/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
+<p><a
+href="https://leetcode.com/problems/find-k-th-smallest-pair-distance/">Find
+K-th Smallest Pair Distance</a> Given an integer array, return the k-th
+smallest distance among all the pairs. The distance of a pair (A, B) is
+defined as the absolute difference between A and B.</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line">Input:</span><br><span class="line">nums = [1,3,1]</span><br><span class="line">k = 1</span><br><span class="line">Output: 0</span><br><span class="line">Explanation:</span><br><span class="line">Here are all the pairs:</span><br><span class="line">(1,3) -&gt; 2</span><br><span class="line">(1,1) -&gt; 0</span><br><span class="line">(3,1) -&gt; 2</span><br><span class="line">Then the 1st smallest distance pair is (1,1), and its distance is 0.</span><br><span class="line">Note:</span><br><span class="line">2 &lt;= len(nums) &lt;= 10000.</span><br><span class="line">0 &lt;= nums[i] &lt; 1000000.</span><br><span class="line">1 &lt;= k &lt;= len(nums) * (len(nums) - 1) / 2.</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<h2 id="解题报告">解题报告</h2>
+<h3 id="理解题意">理解题意</h3>
+<ul>
+<li>给定数组，让在所有的距离对中求第 k
+个最小的距离，然后给出距离对的定义是 (a,b) --&gt; a 和 b 的差值</li>
+</ul>
+<h3 id="理解例子">理解例子</h3>
+<ul>
+<li><code>&#123;1,3,1&#125;</code> 数组，可能有的距离对的个数为 n * (n - 1) /
+2</li>
+<li>所有的距离对为：(1, 3) (1, 1) (3, 1) 他们的距离值为: 2, 0 ,2</li>
+<li>因此排在第 1 位的最小的距离对为 (1,1) 结果为 0</li>
+</ul>
+<h3 id="思路">思路</h3>
+<ul>
+<li>首先想到的就是暴力解法，我们得知道所有可能的距离对，然后计算每个对的差值，求第
+k 个。</li>
+<li>转念一想，其实没必要把距离对求出来，只要求出所有可能的差值就行。</li>
+<li>但差值可能有好几个，模式点像桶排序，O(n)时间就可完成排序，那么就得知道需要多少个桶。</li>
+<li>所以对输入数据进行排序后，最大的值，就知道了，也就知道桶的个数了。</li>
+<li>每个桶里放差值的个数即可，就能知道排在第几位的桶有多少个，也就能回答问题</li>
+</ul>
+<h3 id="代码">代码</h3>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">smallestDistancePair</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums, <span class="type">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">sort</span>(nums.<span class="built_in">begin</span>(), nums.<span class="built_in">end</span>());</span><br><span class="line">        <span class="type">int</span> n = nums.<span class="built_in">back</span>();</span><br><span class="line">        <span class="type">const</span> <span class="type">int</span> m = nums.<span class="built_in">size</span>();</span><br><span class="line">        <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">freq</span><span class="params">(n<span class="number">+1</span>, <span class="number">0</span>)</span></span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i<span class="number">+1</span>; j &lt; m; j++)</span><br><span class="line">                <span class="built_in">freq</span>(nums[j]-nums[i])++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            k -= freq[i];</span><br><span class="line">            <span class="keyword">if</span> (k &lt;= <span class="number">0</span>) <span class="keyword">return</span> i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="时间复杂度">时间复杂度</h4>
+<p>\(\)</p>
+<h4 id="空间复杂度">空间复杂度</h4>
+<p>因此空间复杂度也为 \(\)</p>
+<h3 id="优化">优化</h3>
+<ul>
+<li>提交后通过了，但是所有的性能指标是在最后的最后，还是优化一下符合要求</li>
+<li>桶排序的内存要求比较高，另外，在求所有元素对的地方耗费太多时间，那个地方也是优化点。</li>
+<li>这道题目的步骤大概可以分为两个，首先的知道距离对的内容，然后就是找 k
+个满足条件的距离对</li>
+<li>距离对的内容，可以使用 dp 来解决，那么 dp
+的状态转换方程应该怎么写呢？</li>
+</ul>
+<h4 id="思路-1">思路</h4>
+<ul>
+<li>由于题目让求排在第 k 位的最小的距离对。之前的 lower_bound
+是查找≥某个数的第一个位置， upper_bound
+是求＞某个数的第一个位置。因此这道题应该是让查：差值，这个差值还得满足至少有
+k 个差值是小于等于它的。</li>
+<li>因此如果要使用折半查找的数据内容是表示
+以上内容的，就可以方便的使用折半查找了。</li>
+<li>假定内容是升序排列，假定 <code>d_ij</code> 表示
+对于<code>(i,j)</code> 距离对且 <code>i &lt; j</code>，那么
+<code>d_id = nums[j] - nums[i]</code></li>
+<li>如果 i 位置不变的话，<code>d_ij &lt;= num</code> 就等价于
+<code>nums[j] &lt;= nums[i] + num</code></li>
+<li>那么也就是说要去找最小的 <code>j</code> 保证
+<code>nums[j] &gt; nums[i] + num</code></li>
+<li>计数也可以使用双指针，在线性时间下完成 &gt; * 假定两个起点 l1 &lt;
+l2，满足 nums[j1] &gt; nums[i1] + num 和 nums[j2] &gt; nums[i2] + num
+---&gt; j2 &gt; j1</li>
+</ul>
+]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Hard</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Find the Duplicated Number</title>
+    <url>/2020/06/27/FindTheDuplicatedNumber/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
+<p><a
+href="http://bookshadow.com/weblog/2015/09/28/leetcode-find-duplicate-number/">Find
+the Duplicated Number</a> Given an array nums containing n + 1 integers
+where each integer is between 1 and n (inclusive), prove that at least
+one duplicate number must exist. Assume that there is only one duplicate
+number, find the duplicate one.</p>
+<p>Example 1:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [1,3,4,2,2]</span><br><span class="line">Output: 2</span><br></pre></td></tr></table></figure>
+<p>Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [3,1,3,4,2]</span><br><span class="line">Output: 3</span><br></pre></td></tr></table></figure> Note:</p>
+<p>You must not modify the array (assume the array is read only). You
+must use only constant, O(1) extra space. Your runtime complexity should
+be less than O(n2). There is only one duplicate number in the array, but
+it could be repeated more than once.</p>
+<span id="more"></span>
+<h2 id="解题报告">解题报告</h2>
+<h3 id="理解题意">理解题意</h3>
+<ul>
+<li>给定一个大小为 <code>n+1</code> 的数组，其中每一个数字都是在
+<code>1--N</code> 的区间内,
+证明至少有一个重复数字是存在的，假定只有唯一的一个重复数字，找到他</li>
+<li>不能修改数组, 排序也就不能用了。</li>
+<li>常量空间</li>
+<li>运行时间要比 N^2要小，那就只剩下 O(n) O(nlogn) O(logn)
+的算法可用。</li>
+</ul>
+<h3 id="理解例子">理解例子</h3>
+<ul>
+<li><code>2 -&gt; 4 -&gt; 3</code> = <code>342</code></li>
+<li><code>5 -&gt; 6 -&gt; 4</code> = <code>465</code></li>
+<li><code>342 + 465 = 807</code></li>
+<li>答案 : <code>7 -&gt; 0 -&gt; 8</code></li>
+</ul>
+<h3 id="思路">思路</h3>
+<ul>
+<li>证明至少存在一个重复数字，如果元素是<code>[1,n]</code> 那么就存在
+<code>n</code> 个不同的数字，分别将每一个位置都占据了，当数字个数为
+<code>n+1</code> 时，那么最少有一个数字是重复的</li>
+<li>由于数组的 <code>n+1</code> 个元素的取值范围为
+<code>1..n</code>，假定映射关系为 <code>f</code>，那么就存在一个函数
+<code>f(i) --&gt;</code> 可以取到
+<code>nums[i]</code>，重复的情况就是说存在另一个数字
+<code>j</code>，在<code>i != j</code>的前提下，存在
+<code>f(i) == f(j)</code>， 那么剩下的问题就是如何将 <code>f</code>
+表示出来</li>
+<li>就是说使用函数
+f。遍历整个数组，总会存在一个位置导致没有办法结束，走入无限循环，也就是类似链表存在环。</li>
+<li>证明过程：<a
+href="http://bookshadow.com/weblog/2015/09/28/leetcode-find-duplicate-number/">证明过程</a></li>
+</ul>
+<h3 id="代码">代码</h3>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">findDubplicated</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> slow = <span class="number">0</span>, fast = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            slow = nums[slow];</span><br><span class="line">            fast = nums[nums[fast]];</span><br><span class="line">            <span class="keyword">if</span> (slow == fast)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> find = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            slow = nums[slow];</span><br><span class="line">            find = nums[find];</span><br><span class="line">            <span class="keyword">if</span> (slow == find)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> find;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Medium</tag>
       </tags>
   </entry>
   <entry>
@@ -598,73 +805,6 @@ distance 状态转移：外面两层大循环遍历 i 和 j ：核心从 s[i] �
       </tags>
   </entry>
   <entry>
-    <title>探索 NSDictionary</title>
-    <url>/2019/12/04/Dive-Into-NSDictionary/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="exposing-nsdictinoary">Exposing NSDictinoary</h1>
-<h2 id="the-class">The Class</h2>
-<p>相当多的类都是 class clusters，当然 NSDictionary
-也不例外，曾经一段时间 NSDictinoary 使用了 CFDictionary
-作为它的默认实现。然而，在 iOS 6以后事情改变了。。。</p>
-<span id="more"></span>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(lldb) po [[NSDictionary new] class]</span><br><span class="line">__NSDictionaryI</span><br></pre></td></tr></table></figure>
-<p>和 __NSArrayM 一样， __NSDictionaryI 也是在 CoreFoundation Framework
-中：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@interface __NSDictionaryI : NSDictionary</span><br><span class="line">&#123;</span><br><span class="line">    NSUIngeter _used:58;</span><br><span class="line">    NSUIngeter _szidx:6;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="the-storage">The Storage</h2>
-<h3 id="instance-creation">Instance Creation</h3>
-<p>想要理解 __NSDictionaryI
-在哪里保存内容，我们来看看对象创建的过程，只有一个类方法负责创建实例：<code>__NSDictionaryI</code>。根据
-class-dump 的输出，方法有如下的签名：</p>
-<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (id)__new:(const id *)arg1:(const id *)arg2:(unsigned long long)arg3:(_Bool)arg4:(_Bool)arg5;</span><br></pre></td></tr></table></figure></p>
-<p>他需要5各参数，只有第一个是指名字，如果我们使用@selector
-的方式来写的话，应该是这样
-<code>@selector(__new:::::)</code>。前三个参数通过设置断点，然后看一下寄存器
-x2、x3、x4的内容，看到他们是分别是：array 的 key、array 的
-object、key（object） 的个数。注意和对外公布的 api
-相比，参数的位置是互换的。</p>
-<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (instancetype)dictionaryWithObjects:(const id [])objects forKeys:(const id &lt;NSCopying&gt; [])keys count:(NSUInteger)cnt;</span><br></pre></td></tr></table></figure></p>
-<p>其实参数定义为<code>const id *</code>或者<code>const id []</code>没有太大的关系。剩下的就是两个BOOL
-类型的参数。第四个参数是指 key
-是否需要被拷贝。第五个参数决定了参数是否不需要被
-retain。我们可以重写该函数：</p>
-<p><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (id)__new:(const id *)keys :(const id *)objects :(unsigned long long)count :(_Bool)copyKeys :(_Bool)dontRetain;</span><br></pre></td></tr></table></figure></p>
-<h3 id="indexed-ivars">Indexed ivars</h3>
-<p>除了函数<code>+ __new:::::</code>以外，<code>malloc</code> 和
-<code>calloc</code> 并没有地方被调用。实际上，函数调用了
-<code>__CFAllocateObject2</code> 方法，并且传递了
-<code>__NSDictionaryI</code>
-作为第一个参数，然后用需要的大小作为第二个参数。<code>__CFAllocateObject2</code>
-实际上调用了 <code>class_createInstance</code>
-，然后把同样的参数传给他。</p>
-<p>class_createInstance(Class cls, size_t extraBytes) 调用了
-_class_createInstanceFromZone 并且传个 nil 作为 zone 的参数。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">_class_createInstanceFromZone(Class cls, size_t extraBytes, void *zone)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    size_t size = cls-&gt;alignedInstanceSize() + extraBytes;</span><br><span class="line">    ...</span><br><span class="line">    id obj = (id)calloc(1, size);</span><br><span class="line">    ...</span><br><span class="line">    return obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>extreBytes 参数，calloc 函数调用确保了所有的 ivar 都是 0.</p>
-<p>indexed ivars就是在普通的 ivar 后面<img
-src="/images/14919793823550/14919859011959.jpg" /></p>
-<p>剩下的就是分配内存了</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">void *object_getIndexedIvars(id obj)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/14919793823550/14919866880631.jpg" /></p>
-<p>关于 indexed ivar 有一些比较好玩的事情。 *
-每一个实例都可以有不同数量的 extraBytes指向他 * 存取速度很快。 * 可以对
-class-dump 这样的工具隐藏实现细节。</p>
-<p>但是：在 arc 环境下是不能直接编译 class_createInstance，需要增加
--fno-objc-arc 标志位。。运行时没有保存 indexed ivars 信息。</p>
-<h2 id="key-访问一个对象">key &amp; 访问一个对象</h2>
-<h3 id="c-code">C Code</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">- (id)objectForKey:(id)aKey</span><br><span class="line">&#123;</span><br><span class="line">    NSUInteger sizeIndex = _szidx;</span><br><span class="line">    NSUInteger size = __NSDictionarySizes[sizeIndex];</span><br><span class="line"></span><br><span class="line">    id *storage = (id *)object_getIndexedIvars(dict);</span><br><span class="line"></span><br><span class="line">    NSUInteger fetchIndex = [aKey hash] % size;</span><br><span class="line"></span><br><span class="line">    for (int i = 0; i &lt; size; i++) &#123;</span><br><span class="line">        id fetchedKey = storage[2 * fetchIndex];</span><br><span class="line"></span><br><span class="line">        if (fetchedKey == nil) &#123;</span><br><span class="line">            return nil;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (fetchedKey == aKey || [fetchedKey isEqual:aKey]) &#123;</span><br><span class="line">            return storage[2 * fetchIndex + 1];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        fetchIndex++;</span><br><span class="line"></span><br><span class="line">        if (fetchIndex == size) &#123;</span><br><span class="line">            fetchIndex = 0;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return nil;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>上述代码是从汇编反推出来的。</p>
-<p><img src="/images/14919793823550/14919872407257.jpg" /></p>
-]]></content>
-      <categories>
-        <category>瞎逼逼</category>
-      </categories>
-      <tags>
-        <tag>iOS</tag>
-        <tag>NSDictionary</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Gray Code Conversion</title>
     <url>/2020/05/22/GrayCode-Conversion/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="来自维基百科">来自维基百科</h2>
@@ -676,184 +816,6 @@ class-dump 这样的工具隐藏实现细节。</p>
       <tags>
         <tag>LeetCode</tag>
         <tag>Medium</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Find the Duplicated Number</title>
-    <url>/2020/06/27/FindTheDuplicatedNumber/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
-<p><a
-href="http://bookshadow.com/weblog/2015/09/28/leetcode-find-duplicate-number/">Find
-the Duplicated Number</a> Given an array nums containing n + 1 integers
-where each integer is between 1 and n (inclusive), prove that at least
-one duplicate number must exist. Assume that there is only one duplicate
-number, find the duplicate one.</p>
-<p>Example 1:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [1,3,4,2,2]</span><br><span class="line">Output: 2</span><br></pre></td></tr></table></figure>
-<p>Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [3,1,3,4,2]</span><br><span class="line">Output: 3</span><br></pre></td></tr></table></figure> Note:</p>
-<p>You must not modify the array (assume the array is read only). You
-must use only constant, O(1) extra space. Your runtime complexity should
-be less than O(n2). There is only one duplicate number in the array, but
-it could be repeated more than once.</p>
-<span id="more"></span>
-<h2 id="解题报告">解题报告</h2>
-<h3 id="理解题意">理解题意</h3>
-<ul>
-<li>给定一个大小为 <code>n+1</code> 的数组，其中每一个数字都是在
-<code>1--N</code> 的区间内,
-证明至少有一个重复数字是存在的，假定只有唯一的一个重复数字，找到他</li>
-<li>不能修改数组, 排序也就不能用了。</li>
-<li>常量空间</li>
-<li>运行时间要比 N^2要小，那就只剩下 O(n) O(nlogn) O(logn)
-的算法可用。</li>
-</ul>
-<h3 id="理解例子">理解例子</h3>
-<ul>
-<li><code>2 -&gt; 4 -&gt; 3</code> = <code>342</code></li>
-<li><code>5 -&gt; 6 -&gt; 4</code> = <code>465</code></li>
-<li><code>342 + 465 = 807</code></li>
-<li>答案 : <code>7 -&gt; 0 -&gt; 8</code></li>
-</ul>
-<h3 id="思路">思路</h3>
-<ul>
-<li>证明至少存在一个重复数字，如果元素是<code>[1,n]</code> 那么就存在
-<code>n</code> 个不同的数字，分别将每一个位置都占据了，当数字个数为
-<code>n+1</code> 时，那么最少有一个数字是重复的</li>
-<li>由于数组的 <code>n+1</code> 个元素的取值范围为
-<code>1..n</code>，假定映射关系为 <code>f</code>，那么就存在一个函数
-<code>f(i) --&gt;</code> 可以取到
-<code>nums[i]</code>，重复的情况就是说存在另一个数字
-<code>j</code>，在<code>i != j</code>的前提下，存在
-<code>f(i) == f(j)</code>， 那么剩下的问题就是如何将 <code>f</code>
-表示出来</li>
-<li>就是说使用函数
-f。遍历整个数组，总会存在一个位置导致没有办法结束，走入无限循环，也就是类似链表存在环。</li>
-<li>证明过程：<a
-href="http://bookshadow.com/weblog/2015/09/28/leetcode-find-duplicate-number/">证明过程</a></li>
-</ul>
-<h3 id="代码">代码</h3>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">findDubplicated</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> slow = <span class="number">0</span>, fast = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            slow = nums[slow];</span><br><span class="line">            fast = nums[nums[fast]];</span><br><span class="line">            <span class="keyword">if</span> (slow == fast)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> find = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            slow = nums[slow];</span><br><span class="line">            find = nums[find];</span><br><span class="line">            <span class="keyword">if</span> (slow == find)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> find;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>LeetCode</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>Medium</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>单例如何释放</title>
-    <url>/2019/12/04/How-To-Release-Singleton-iOS/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="ios-weak关键字">iOS weak关键字</h1>
-<p>weak 关键字的运用在 iOS 当中属于基础知识，在面试的时候问 weak
-的用处，就像两个 iOS 程序员见面寒暄问候一样普通了。</p>
-<p>weak 的常见场景是在 delegate，block，NSTimer
-中使用，以避免循环引用所带来的内存泄漏，这是教科书式的用法。</p>
-<p>编程语言是工具，语言特性只是工具的特性，工具怎么用在于使用者。weak
-关键字的方便之处绝不局限于避免循环引用，适当脑洞，可以在其他场景下带来一些有趣的应用。</p>
-<p>weak 的用处用一句话可归纳为：弱引用，在对象释放后置为
-nil，避免错误的内存访问。用更通俗的话来表述是：weak
-可以在不增加对象的引用计数的同时，又使得指针的访问是安全的。</p>
-<span id="more"></span>
-<h2 id="weak-singleton">weak singleton</h2>
-<p>之前见过一篇文章介绍了一个新 pattern 叫 「weak
-singleton」。这种特殊的单例有一个有意思的特性：在所有使用该单例的对象都释放后，单例对象本身也会自己释放。我所见过的大部分单例使用场景，被创建都单例最后都会一直存活着，比如注册登录模块所需要共享状态所创建的
-XXLoginManager，即使在用户注册成功进入主界面之后也不会被显式的释放，这在一定程度上会带来内存使用的浪费。所谓的「weak
-singleton」代码很简单：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (id)sharedInstance</span><br><span class="line">&#123;</span><br><span class="line">    static __weak ASingletonClass *instance;</span><br><span class="line">    ASingletonClass *strongInstance = instance;</span><br><span class="line">    @synchronized(self) &#123;</span><br><span class="line">        if (strongInstance == nil) &#123;</span><br><span class="line">            strongInstance = [[[self class] alloc] init];</span><br><span class="line">            instance = strongInstance;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return strongInstance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>「weak singleton」这个漂亮名字背后其实只是简单而巧妙的利用了 weak
-特性，sharedInstance 中的 weak 就像是一个智能管家，在无人使用 instance
-之后就置为 nil 销毁，当 sharedInstance 再次被调用时，instance
-又会重新被创建。</p>
-<h2 id="ps-还有另一个方式可以释放单例">PS:
-还有另一个方式可以释放单例</h2>
-<p>主要思路是单例是靠 <code>dispatch_once_t</code> 类型的
-<code>token</code> 来确保初始化，只执行一次，来实现单例。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">static dispatch_once_t * once_token_factory;</span><br><span class="line">+ (ZDocUIFactory *)sharedInstance&#123;</span><br><span class="line">    static dispatch_once_t onceToken;</span><br><span class="line">    once_token_factory = &amp;onceToken;</span><br><span class="line">    static id factory = nil;</span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        factory = [[ZDocUIFactory alloc] init];</span><br><span class="line">    &#125;);</span><br><span class="line">    return factory;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)destoryFactory&#123;</span><br><span class="line">    *once_token_factory = 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>iOS</tag>
-        <tag>单例</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Find K-th Smallest Pair Distance</title>
-    <url>/2020/07/04/FindKtheSmallestPairDistance/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
-<p><a
-href="https://leetcode.com/problems/find-k-th-smallest-pair-distance/">Find
-K-th Smallest Pair Distance</a> Given an integer array, return the k-th
-smallest distance among all the pairs. The distance of a pair (A, B) is
-defined as the absolute difference between A and B.</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Example 1:</span><br><span class="line">Input:</span><br><span class="line">nums = [1,3,1]</span><br><span class="line">k = 1</span><br><span class="line">Output: 0</span><br><span class="line">Explanation:</span><br><span class="line">Here are all the pairs:</span><br><span class="line">(1,3) -&gt; 2</span><br><span class="line">(1,1) -&gt; 0</span><br><span class="line">(3,1) -&gt; 2</span><br><span class="line">Then the 1st smallest distance pair is (1,1), and its distance is 0.</span><br><span class="line">Note:</span><br><span class="line">2 &lt;= len(nums) &lt;= 10000.</span><br><span class="line">0 &lt;= nums[i] &lt; 1000000.</span><br><span class="line">1 &lt;= k &lt;= len(nums) * (len(nums) - 1) / 2.</span><br></pre></td></tr></table></figure>
-<span id="more"></span>
-<h2 id="解题报告">解题报告</h2>
-<h3 id="理解题意">理解题意</h3>
-<ul>
-<li>给定数组，让在所有的距离对中求第 k
-个最小的距离，然后给出距离对的定义是 (a,b) --&gt; a 和 b 的差值</li>
-</ul>
-<h3 id="理解例子">理解例子</h3>
-<ul>
-<li><code>&#123;1,3,1&#125;</code> 数组，可能有的距离对的个数为 n * (n - 1) /
-2</li>
-<li>所有的距离对为：(1, 3) (1, 1) (3, 1) 他们的距离值为: 2, 0 ,2</li>
-<li>因此排在第 1 位的最小的距离对为 (1,1) 结果为 0</li>
-</ul>
-<h3 id="思路">思路</h3>
-<ul>
-<li>首先想到的就是暴力解法，我们得知道所有可能的距离对，然后计算每个对的差值，求第
-k 个。</li>
-<li>转念一想，其实没必要把距离对求出来，只要求出所有可能的差值就行。</li>
-<li>但差值可能有好几个，模式点像桶排序，O(n)时间就可完成排序，那么就得知道需要多少个桶。</li>
-<li>所以对输入数据进行排序后，最大的值，就知道了，也就知道桶的个数了。</li>
-<li>每个桶里放差值的个数即可，就能知道排在第几位的桶有多少个，也就能回答问题</li>
-</ul>
-<h3 id="代码">代码</h3>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">smallestDistancePair</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums, <span class="type">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">sort</span>(nums.<span class="built_in">begin</span>(), nums.<span class="built_in">end</span>());</span><br><span class="line">        <span class="type">int</span> n = nums.<span class="built_in">back</span>();</span><br><span class="line">        <span class="type">const</span> <span class="type">int</span> m = nums.<span class="built_in">size</span>();</span><br><span class="line">        <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">freq</span><span class="params">(n<span class="number">+1</span>, <span class="number">0</span>)</span></span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = i<span class="number">+1</span>; j &lt; m; j++)</span><br><span class="line">                <span class="built_in">freq</span>(nums[j]-nums[i])++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            k -= freq[i];</span><br><span class="line">            <span class="keyword">if</span> (k &lt;= <span class="number">0</span>) <span class="keyword">return</span> i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h4 id="时间复杂度">时间复杂度</h4>
-<p>\(\)</p>
-<h4 id="空间复杂度">空间复杂度</h4>
-<p>因此空间复杂度也为 \(\)</p>
-<h3 id="优化">优化</h3>
-<ul>
-<li>提交后通过了，但是所有的性能指标是在最后的最后，还是优化一下符合要求</li>
-<li>桶排序的内存要求比较高，另外，在求所有元素对的地方耗费太多时间，那个地方也是优化点。</li>
-<li>这道题目的步骤大概可以分为两个，首先的知道距离对的内容，然后就是找 k
-个满足条件的距离对</li>
-<li>距离对的内容，可以使用 dp 来解决，那么 dp
-的状态转换方程应该怎么写呢？</li>
-</ul>
-<h4 id="思路-1">思路</h4>
-<ul>
-<li>由于题目让求排在第 k 位的最小的距离对。之前的 lower_bound
-是查找≥某个数的第一个位置， upper_bound
-是求＞某个数的第一个位置。因此这道题应该是让查：差值，这个差值还得满足至少有
-k 个差值是小于等于它的。</li>
-<li>因此如果要使用折半查找的数据内容是表示
-以上内容的，就可以方便的使用折半查找了。</li>
-<li>假定内容是升序排列，假定 <code>d_ij</code> 表示
-对于<code>(i,j)</code> 距离对且 <code>i &lt; j</code>，那么
-<code>d_id = nums[j] - nums[i]</code></li>
-<li>如果 i 位置不变的话，<code>d_ij &lt;= num</code> 就等价于
-<code>nums[j] &lt;= nums[i] + num</code></li>
-<li>那么也就是说要去找最小的 <code>j</code> 保证
-<code>nums[j] &gt; nums[i] + num</code></li>
-<li>计数也可以使用双指针，在线性时间下完成 &gt; * 假定两个起点 l1 &lt;
-l2，满足 nums[j1] &gt; nums[i1] + num 和 nums[j2] &gt; nums[i2] + num
----&gt; j2 &gt; j1</li>
-</ul>
-]]></content>
-      <categories>
-        <category>LeetCode</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>Hard</tag>
       </tags>
   </entry>
   <entry>
@@ -931,6 +893,44 @@ except the number 0 itself.</p>
       </tags>
   </entry>
   <entry>
+    <title>单例如何释放</title>
+    <url>/2019/12/04/How-To-Release-Singleton-iOS/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="ios-weak关键字">iOS weak关键字</h1>
+<p>weak 关键字的运用在 iOS 当中属于基础知识，在面试的时候问 weak
+的用处，就像两个 iOS 程序员见面寒暄问候一样普通了。</p>
+<p>weak 的常见场景是在 delegate，block，NSTimer
+中使用，以避免循环引用所带来的内存泄漏，这是教科书式的用法。</p>
+<p>编程语言是工具，语言特性只是工具的特性，工具怎么用在于使用者。weak
+关键字的方便之处绝不局限于避免循环引用，适当脑洞，可以在其他场景下带来一些有趣的应用。</p>
+<p>weak 的用处用一句话可归纳为：弱引用，在对象释放后置为
+nil，避免错误的内存访问。用更通俗的话来表述是：weak
+可以在不增加对象的引用计数的同时，又使得指针的访问是安全的。</p>
+<span id="more"></span>
+<h2 id="weak-singleton">weak singleton</h2>
+<p>之前见过一篇文章介绍了一个新 pattern 叫 「weak
+singleton」。这种特殊的单例有一个有意思的特性：在所有使用该单例的对象都释放后，单例对象本身也会自己释放。我所见过的大部分单例使用场景，被创建都单例最后都会一直存活着，比如注册登录模块所需要共享状态所创建的
+XXLoginManager，即使在用户注册成功进入主界面之后也不会被显式的释放，这在一定程度上会带来内存使用的浪费。所谓的「weak
+singleton」代码很简单：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+ (id)sharedInstance</span><br><span class="line">&#123;</span><br><span class="line">    static __weak ASingletonClass *instance;</span><br><span class="line">    ASingletonClass *strongInstance = instance;</span><br><span class="line">    @synchronized(self) &#123;</span><br><span class="line">        if (strongInstance == nil) &#123;</span><br><span class="line">            strongInstance = [[[self class] alloc] init];</span><br><span class="line">            instance = strongInstance;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return strongInstance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>「weak singleton」这个漂亮名字背后其实只是简单而巧妙的利用了 weak
+特性，sharedInstance 中的 weak 就像是一个智能管家，在无人使用 instance
+之后就置为 nil 销毁，当 sharedInstance 再次被调用时，instance
+又会重新被创建。</p>
+<h2 id="ps-还有另一个方式可以释放单例">PS:
+还有另一个方式可以释放单例</h2>
+<p>主要思路是单例是靠 <code>dispatch_once_t</code> 类型的
+<code>token</code> 来确保初始化，只执行一次，来实现单例。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">static dispatch_once_t * once_token_factory;</span><br><span class="line">+ (ZDocUIFactory *)sharedInstance&#123;</span><br><span class="line">    static dispatch_once_t onceToken;</span><br><span class="line">    once_token_factory = &amp;onceToken;</span><br><span class="line">    static id factory = nil;</span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        factory = [[ZDocUIFactory alloc] init];</span><br><span class="line">    &#125;);</span><br><span class="line">    return factory;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)destoryFactory&#123;</span><br><span class="line">    *once_token_factory = 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>iOS</tag>
+        <tag>单例</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LinkedList</title>
     <url>/2020/06/30/LinkedList/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="链表总结">链表总结</h2>
@@ -953,6 +953,62 @@ id="给定链表删除所有重复元素使得每一个元素只出现一次">�
 </ul>
 <h4 id="merge-two-lists">Merge Two Lists</h4>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode *<span class="title">mergeTwoList</span><span class="params">(ListNode *l1, ListNode *l2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!l1) <span class="keyword">return</span> l2;</span><br><span class="line">        <span class="keyword">if</span> (!l2) <span class="keyword">return</span> l1;</span><br><span class="line"></span><br><span class="line">        ListNode *cur = <span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">if</span> (l1-&gt;val &lt; l2-&gt;val) &#123;</span><br><span class="line">            cur = l1;</span><br><span class="line">            cur-&gt;next = <span class="built_in">mergeTwoLists</span>(cur-&gt;next, l2);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            cur = l2;</span><br><span class="line">            cur-&gt;next = <span class="built_in">mergeTwoLists</span>(l1, cur-&gt;next);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cur;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Medium</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LongestSubstringWithoutRepeatingCharacters</title>
+    <url>/2019/11/22/LongestSubstringWithoutRepeatingCharacters/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
+<p><a
+href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">Longest
+Substring Without Repeating Characters</a> Given a string, find the
+length of the longest substring without repeating characters.</p>
+<p>Example 1: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: <span class="string">&quot;abcabcbb&quot;</span></span><br><span class="line">Output: 3</span><br><span class="line">Explanation: The answer is <span class="string">&quot;abc&quot;</span>, with the length of 3.</span><br></pre></td></tr></table></figure> Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: <span class="string">&quot;bbbbb&quot;</span></span><br><span class="line">Output: 1</span><br><span class="line">Explanation: The answer is <span class="string">&quot;b&quot;</span>, with the length of 1.</span><br></pre></td></tr></table></figure> Example 3:
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: <span class="string">&quot;pwwkew&quot;</span></span><br><span class="line">Output: 3</span><br><span class="line">Explanation: The answer is <span class="string">&quot;wke&quot;</span>, with the length of 3.</span><br><span class="line">             Note that the answer must be a substring, <span class="string">&quot;pwke&quot;</span> is a subsequence and not a substring.</span><br></pre></td></tr></table></figure></p>
+<span id="more"></span>
+<h2 id="解题报告">解题报告</h2>
+<h3 id="理解题意">理解题意</h3>
+<ul>
+<li>给定一个字符串，求<code>最长</code>的<code>无重复字符</code>的<code>子串</code></li>
+<li>子串：没有重复的字符</li>
+<li>子串长度：<code>右边-左边</code></li>
+</ul>
+<h3 id="理解例子">理解例子</h3>
+<h4 id="例子-1">例子 1</h4>
+<ul>
+<li>输入：<code>abcabcbb</code></li>
+<li>输出：<code>3</code></li>
+<li>最长的子串：abc/bca/cab 长度为 3</li>
+</ul>
+<h3 id="思路">思路</h3>
+<ul>
+<li>题目要求计算最长子串长度，并且是无重复的子串。</li>
+<li>字符串的长度的计算：<code>当前位置-开始位置</code></li>
+<li>那么随后的问题就是如何计算开始位置。</li>
+<li>如果没有重复子串出现过，那么开始位置就是0，如果重复子串出现过，那么开始位置就是这个位置的下一个位置。</li>
+<li>需要一个数据结构来记录每一个字符上一次出现的位置</li>
+</ul>
+<h4 id="流程">流程</h4>
+<ul>
+<li>遍历整个字符串</li>
+<li>针对每一个字符，在合适的时候更新<code>left</code>，那么剩下的问题就是何时更新<code>left</code></li>
+<li>针对每一个字符，计算并保存最大的长度</li>
+<li>遍历完成后返回最大的长度</li>
+<li>时间复杂度：线性时间 \(\)</li>
+</ul>
+<h3 id="代码">代码</h3>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (s.<span class="built_in">empty</span>()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">pos_map</span><span class="params">(<span class="number">256</span>, <span class="number">-1</span>)</span></span>;</span><br><span class="line">        <span class="type">int</span> start = <span class="number">0</span>, ans = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">length</span>(); i++) &#123;</span><br><span class="line">            start = <span class="built_in">max</span>(pos_map[s[i]]<span class="number">+1</span>, start);</span><br><span class="line">            pos_map[s[i]] = i;</span><br><span class="line">            ans = <span class="built_in">max</span>(ans, i - start<span class="number">+1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="时间复杂度">时间复杂度</h3>
+<p>如一开始分析：时间复杂度：线性时间 \(\)</p>
+<h3 id="空间复杂度">空间复杂度</h3>
+<p>额外申请了和一个链表，因此空间复杂度也为 \(\)</p>
 ]]></content>
       <categories>
         <category>LeetCode</category>
@@ -1033,62 +1089,6 @@ substring.</p>
       </categories>
       <tags>
         <tag>Algorithm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LongestSubstringWithoutRepeatingCharacters</title>
-    <url>/2019/11/22/LongestSubstringWithoutRepeatingCharacters/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
-<p><a
-href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">Longest
-Substring Without Repeating Characters</a> Given a string, find the
-length of the longest substring without repeating characters.</p>
-<p>Example 1: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: <span class="string">&quot;abcabcbb&quot;</span></span><br><span class="line">Output: 3</span><br><span class="line">Explanation: The answer is <span class="string">&quot;abc&quot;</span>, with the length of 3.</span><br></pre></td></tr></table></figure> Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: <span class="string">&quot;bbbbb&quot;</span></span><br><span class="line">Output: 1</span><br><span class="line">Explanation: The answer is <span class="string">&quot;b&quot;</span>, with the length of 1.</span><br></pre></td></tr></table></figure> Example 3:
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: <span class="string">&quot;pwwkew&quot;</span></span><br><span class="line">Output: 3</span><br><span class="line">Explanation: The answer is <span class="string">&quot;wke&quot;</span>, with the length of 3.</span><br><span class="line">             Note that the answer must be a substring, <span class="string">&quot;pwke&quot;</span> is a subsequence and not a substring.</span><br></pre></td></tr></table></figure></p>
-<span id="more"></span>
-<h2 id="解题报告">解题报告</h2>
-<h3 id="理解题意">理解题意</h3>
-<ul>
-<li>给定一个字符串，求<code>最长</code>的<code>无重复字符</code>的<code>子串</code></li>
-<li>子串：没有重复的字符</li>
-<li>子串长度：<code>右边-左边</code></li>
-</ul>
-<h3 id="理解例子">理解例子</h3>
-<h4 id="例子-1">例子 1</h4>
-<ul>
-<li>输入：<code>abcabcbb</code></li>
-<li>输出：<code>3</code></li>
-<li>最长的子串：abc/bca/cab 长度为 3</li>
-</ul>
-<h3 id="思路">思路</h3>
-<ul>
-<li>题目要求计算最长子串长度，并且是无重复的子串。</li>
-<li>字符串的长度的计算：<code>当前位置-开始位置</code></li>
-<li>那么随后的问题就是如何计算开始位置。</li>
-<li>如果没有重复子串出现过，那么开始位置就是0，如果重复子串出现过，那么开始位置就是这个位置的下一个位置。</li>
-<li>需要一个数据结构来记录每一个字符上一次出现的位置</li>
-</ul>
-<h4 id="流程">流程</h4>
-<ul>
-<li>遍历整个字符串</li>
-<li>针对每一个字符，在合适的时候更新<code>left</code>，那么剩下的问题就是何时更新<code>left</code></li>
-<li>针对每一个字符，计算并保存最大的长度</li>
-<li>遍历完成后返回最大的长度</li>
-<li>时间复杂度：线性时间 \(\)</li>
-</ul>
-<h3 id="代码">代码</h3>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(string s)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (s.<span class="built_in">empty</span>()) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">pos_map</span><span class="params">(<span class="number">256</span>, <span class="number">-1</span>)</span></span>;</span><br><span class="line">        <span class="type">int</span> start = <span class="number">0</span>, ans = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">length</span>(); i++) &#123;</span><br><span class="line">            start = <span class="built_in">max</span>(pos_map[s[i]]<span class="number">+1</span>, start);</span><br><span class="line">            pos_map[s[i]] = i;</span><br><span class="line">            ans = <span class="built_in">max</span>(ans, i - start<span class="number">+1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="时间复杂度">时间复杂度</h3>
-<p>如一开始分析：时间复杂度：线性时间 \(\)</p>
-<h3 id="空间复杂度">空间复杂度</h3>
-<p>额外申请了和一个链表，因此空间复杂度也为 \(\)</p>
-]]></content>
-      <categories>
-        <category>LeetCode</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>Medium</tag>
       </tags>
   </entry>
   <entry>
@@ -1509,69 +1509,6 @@ k</li>
       </tags>
   </entry>
   <entry>
-    <title>Single Number II</title>
-    <url>/2020/05/30/SingleNumberII/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
-<p><a href="https://leetcode.com/problems/single-number-ii/">Single
-Number II</a> Given a non-empty array of integers, every element appears
-three times except for one, which appears exactly once. Find that single
-one.</p>
-<p>Note:</p>
-<p>Your algorithm should have a linear runtime complexity. Could you
-implement it without using extra memory?</p>
-<p>Example 1:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [2,2,3,2]</span><br><span class="line">Output: 3</span><br></pre></td></tr></table></figure>
-<p>Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [0,1,0,1,0,1,99]</span><br><span class="line">Output: 99</span><br></pre></td></tr></table></figure> <span id="more"></span></p>
-<h2 id="解题报告">解题报告</h2>
-<h3 id="理解题意">理解题意</h3>
-<ul>
-<li>给定一个数组，里面的元素均出现了 <code>K(K &gt; 1)</code>
-次,出了一个元素出现 P(P&gt;=1 , P % K != 0) 次，让找到这个元素。 gi</li>
-</ul>
-<h3 id="思路">思路</h3>
-<ul>
-<li>首先构建一个计数器，可以实现对 01 数组进行计数，每次遇见1 counter
-自增，如果自增至 K，则 counter 重至为 0 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">counter</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> array:</span><br><span class="line">        <span class="keyword">if</span> i:</span><br><span class="line">            count += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> counter == k:</span><br><span class="line">            count = <span class="number">0</span></span><br></pre></td></tr></table></figure></li>
-<li>那么什么位操作遇到 0 不变，遇到 1 自增，也就是资深取反（因为自增碰到
-1 会变成 0）</li>
-<li>对于某一位数字 0 或者 1 来讲：</li>
-<li>碰到 0 不变的操作有两个： <code>x = x | 0</code> 另一个是
-<code>x = x ^ 0</code></li>
-<li>但异或(<code>XOR</code>)操作明显更加合适: <code>1 ^ 1 = 0</code> ,
-<code>0 ^ 1 = 1</code>, <code>0 ^ 0 = 0</code></li>
-<li>因此对于 <code>counter</code> 来讲，
-<code>counter = counter ^ 1</code></li>
-<li></li>
-<li>但题目需要覆盖 K 位，那就是  <code>2 ^ m &gt;= K</code>，因此需要
-最少 <code>logk</code> 个</li>
-<li>因此 m 位从高到低为<code>C[m], C[m-1],... C[1]</code></li>
-<li>对于最低位 : <code>C[1] = C[1] ^ i</code>;</li>
-<li>对于<code>C[2]</code>，只有前一位为 1
-的时候才进位，<code>C[2] = C[2] ^ (C[1] &amp; i)</code></li>
-<li>对于<code>C[k]</code>, 进位条件
-<code>i == 1 &amp;&amp; C[j] == 1 for all j &lt; k</code>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">update</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> array:</span><br><span class="line">        C[m] ^= (c[m-<span class="number">1</span>] &amp; c[m-<span class="number">2</span>] &amp; .... C[<span class="number">1</span>] &amp; i)</span><br><span class="line">        ...</span><br><span class="line">        C[<span class="number">2</span>] ^= C[<span class="number">1</span>] &amp; i</span><br><span class="line">        C[<span class="number">1</span>] ^= i</span><br><span class="line">        // 要从最高位开始更新</span><br></pre></td></tr></table></figure></li>
-<li>但更新策略还不完整，需要达到阈值的时候变成 0</li>
-<li>因此需要一个 <code>mask = 0 if counter == k else 1</code></li>
-<li>于是每次更新的时候 <code>C[i] &amp; mask</code></li>
-<li>假设 k 的二进制形式为 k[m], k[m-1]...k[1]</li>
-<li>那么
-<code>mask =  ~(y1 &amp; y2 ... &amp; ym) where yj = cj if kj = 1 else yj = ~ cj</code></li>
-<li>这样子的话当c == k时，yj全部等于1，mask值为0，而 c !=
-k时，yj必不全为1，则mask值必为1. <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i in array:</span><br><span class="line"> 	c[m] ^= (c[m<span class="number">-1</span>] &amp; c[m<span class="number">-2</span>] &amp; ... &amp; c[<span class="number">1</span>] &amp; i)</span><br><span class="line">   ...</span><br><span class="line">   c[<span class="number">2</span>] ^= (c[<span class="number">1</span>] &amp; i)</span><br><span class="line">   c[<span class="number">1</span>] ^= i  # 注意要先从高位开始更新</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> j in <span class="built_in">range</span>(m):</span><br><span class="line">     	y[j] = c[j] <span class="keyword">if</span> k[j] <span class="keyword">else</span> ~c[j]</span><br><span class="line">   mask = ~(y[<span class="number">1</span>] &amp; y[<span class="number">2</span>] ... &amp; y[m])</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> j in <span class="built_in">range</span>(m):</span><br><span class="line">     	c[m] &amp;= mask</span><br><span class="line">       ...</span><br><span class="line">       c[<span class="number">1</span>] &amp;= mask</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="代码">代码</h3>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">c1 = <span class="number">0</span></span><br><span class="line">c2 = <span class="number">0</span></span><br><span class="line">m = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i in nums:</span><br><span class="line">  	c2 ^= c1 &amp; i</span><br><span class="line">    c1 ^= i</span><br><span class="line">    mask = ~(c1 &amp; c2) <span class="meta"># k = 3, 二进制形式为11，则c1和c2都不用取反</span></span><br><span class="line">    c1 &amp;= mask</span><br><span class="line">    c2 &amp;= mask</span><br><span class="line"><span class="keyword">return</span> c1 <span class="meta"># p = 1, 则最后c1 = single</span></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>LeetCode</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>Medium</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Range Sum Query</title>
     <url>/2020/07/11/RangeSumQuery/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="range-sum-query-immutable">Range Sum Query Immutable</h2>
@@ -1641,6 +1578,69 @@ RANGE(9, 12) + RANGE(13, 13) = 29 + 10 + 4 = 43</p>
       </categories>
       <tags>
         <tag>LeetCode</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Single Number II</title>
+    <url>/2020/05/30/SingleNumberII/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
+<p><a href="https://leetcode.com/problems/single-number-ii/">Single
+Number II</a> Given a non-empty array of integers, every element appears
+three times except for one, which appears exactly once. Find that single
+one.</p>
+<p>Note:</p>
+<p>Your algorithm should have a linear runtime complexity. Could you
+implement it without using extra memory?</p>
+<p>Example 1:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [2,2,3,2]</span><br><span class="line">Output: 3</span><br></pre></td></tr></table></figure>
+<p>Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: [0,1,0,1,0,1,99]</span><br><span class="line">Output: 99</span><br></pre></td></tr></table></figure> <span id="more"></span></p>
+<h2 id="解题报告">解题报告</h2>
+<h3 id="理解题意">理解题意</h3>
+<ul>
+<li>给定一个数组，里面的元素均出现了 <code>K(K &gt; 1)</code>
+次,出了一个元素出现 P(P&gt;=1 , P % K != 0) 次，让找到这个元素。 gi</li>
+</ul>
+<h3 id="思路">思路</h3>
+<ul>
+<li>首先构建一个计数器，可以实现对 01 数组进行计数，每次遇见1 counter
+自增，如果自增至 K，则 counter 重至为 0 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">counter</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> array:</span><br><span class="line">        <span class="keyword">if</span> i:</span><br><span class="line">            count += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> counter == k:</span><br><span class="line">            count = <span class="number">0</span></span><br></pre></td></tr></table></figure></li>
+<li>那么什么位操作遇到 0 不变，遇到 1 自增，也就是资深取反（因为自增碰到
+1 会变成 0）</li>
+<li>对于某一位数字 0 或者 1 来讲：</li>
+<li>碰到 0 不变的操作有两个： <code>x = x | 0</code> 另一个是
+<code>x = x ^ 0</code></li>
+<li>但异或(<code>XOR</code>)操作明显更加合适: <code>1 ^ 1 = 0</code> ,
+<code>0 ^ 1 = 1</code>, <code>0 ^ 0 = 0</code></li>
+<li>因此对于 <code>counter</code> 来讲，
+<code>counter = counter ^ 1</code></li>
+<li></li>
+<li>但题目需要覆盖 K 位，那就是  <code>2 ^ m &gt;= K</code>，因此需要
+最少 <code>logk</code> 个</li>
+<li>因此 m 位从高到低为<code>C[m], C[m-1],... C[1]</code></li>
+<li>对于最低位 : <code>C[1] = C[1] ^ i</code>;</li>
+<li>对于<code>C[2]</code>，只有前一位为 1
+的时候才进位，<code>C[2] = C[2] ^ (C[1] &amp; i)</code></li>
+<li>对于<code>C[k]</code>, 进位条件
+<code>i == 1 &amp;&amp; C[j] == 1 for all j &lt; k</code>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">update</span>:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> array:</span><br><span class="line">        C[m] ^= (c[m-<span class="number">1</span>] &amp; c[m-<span class="number">2</span>] &amp; .... C[<span class="number">1</span>] &amp; i)</span><br><span class="line">        ...</span><br><span class="line">        C[<span class="number">2</span>] ^= C[<span class="number">1</span>] &amp; i</span><br><span class="line">        C[<span class="number">1</span>] ^= i</span><br><span class="line">        // 要从最高位开始更新</span><br></pre></td></tr></table></figure></li>
+<li>但更新策略还不完整，需要达到阈值的时候变成 0</li>
+<li>因此需要一个 <code>mask = 0 if counter == k else 1</code></li>
+<li>于是每次更新的时候 <code>C[i] &amp; mask</code></li>
+<li>假设 k 的二进制形式为 k[m], k[m-1]...k[1]</li>
+<li>那么
+<code>mask =  ~(y1 &amp; y2 ... &amp; ym) where yj = cj if kj = 1 else yj = ~ cj</code></li>
+<li>这样子的话当c == k时，yj全部等于1，mask值为0，而 c !=
+k时，yj必不全为1，则mask值必为1. <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i in array:</span><br><span class="line"> 	c[m] ^= (c[m<span class="number">-1</span>] &amp; c[m<span class="number">-2</span>] &amp; ... &amp; c[<span class="number">1</span>] &amp; i)</span><br><span class="line">   ...</span><br><span class="line">   c[<span class="number">2</span>] ^= (c[<span class="number">1</span>] &amp; i)</span><br><span class="line">   c[<span class="number">1</span>] ^= i  # 注意要先从高位开始更新</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> j in <span class="built_in">range</span>(m):</span><br><span class="line">     	y[j] = c[j] <span class="keyword">if</span> k[j] <span class="keyword">else</span> ~c[j]</span><br><span class="line">   mask = ~(y[<span class="number">1</span>] &amp; y[<span class="number">2</span>] ... &amp; y[m])</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> j in <span class="built_in">range</span>(m):</span><br><span class="line">     	c[m] &amp;= mask</span><br><span class="line">       ...</span><br><span class="line">       c[<span class="number">1</span>] &amp;= mask</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="代码">代码</h3>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">c1 = <span class="number">0</span></span><br><span class="line">c2 = <span class="number">0</span></span><br><span class="line">m = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i in nums:</span><br><span class="line">  	c2 ^= c1 &amp; i</span><br><span class="line">    c1 ^= i</span><br><span class="line">    mask = ~(c1 &amp; c2) <span class="meta"># k = 3, 二进制形式为11，则c1和c2都不用取反</span></span><br><span class="line">    c1 &amp;= mask</span><br><span class="line">    c2 &amp;= mask</span><br><span class="line"><span class="keyword">return</span> c1 <span class="meta"># p = 1, 则最后c1 = single</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Medium</tag>
       </tags>
   </entry>
   <entry>
@@ -2296,6 +2296,68 @@ C++，但是调试和配置每次都很头疼，现记录一下配置，备忘</
       </tags>
   </entry>
   <entry>
+    <title>Weakly Contest 169</title>
+    <url>/2019/12/29/Weakly-Contest-169/</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
+<p><a href="https://leetcode.com/contest/weekly-contest-169">Weakly
+Contest 169</a> ### 题目一 <a
+href="https://leetcode.com/contest/weekly-contest-169/problems/find-n-unique-integers-sum-up-to-zero/">5295.
+Find N Unique Integers Sum up to Zero</a></p>
+<p>Given an integer n, return any array containing n unique integers
+such that they add up to 0.</p>
+<p>Example 1:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: n = 5</span><br><span class="line">Output: [-7,-1,1,3,4]</span><br><span class="line">Explanation: These arrays also are accepted [-5,-1,1,2,3] , [-3,-1,2,-2,4].</span><br></pre></td></tr></table></figure>
+<p>Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: n = 3</span><br><span class="line">Output: [-1,0,1]</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: n = 1</span><br><span class="line">Output: [0]</span><br><span class="line"></span><br><span class="line">Constraints:</span><br><span class="line"></span><br><span class="line">1 &lt;= n &lt;= 1000</span><br></pre></td></tr></table></figure></p>
+<span id="more"></span>
+<h3 id="解题报告">解题报告</h3>
+<h4 id="理解题意">理解题意</h4>
+<ul>
+<li>这是一道简单题</li>
+<li>给定一个数，求数组</li>
+<li>要求数组的所有元素和位0</li>
+</ul>
+<h4 id="思路">思路</h4>
+<ul>
+<li>给的数有可能为奇数、也有可能为偶数</li>
+<li>如果是奇数：从0开始向左右拓展，最后加上0即可</li>
+<li>如果为偶数：从0开始向左右拓展</li>
+</ul>
+<h4 id="代码">代码</h4>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">sumZero</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; ans;</span><br><span class="line">        <span class="keyword">if</span> (n % <span class="number">2</span> != <span class="number">0</span>) ans.<span class="built_in">push_back</span>(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n / <span class="number">2</span>; i++) &#123;</span><br><span class="line">            ans.<span class="built_in">push_back</span>(i);</span><br><span class="line">            ans.<span class="built_in">push_back</span>(-i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="题目二">题目二</h2>
+<p><a
+href="https://leetcode.com/contest/weekly-contest-169/problems/all-elements-in-two-binary-search-trees/">5296.
+All Elements in Two Binary Search Trees My SubmissionsBack to
+Contest</a></p>
+<p>Given two binary search trees root1 and root2.</p>
+<p>Return a list containing all the integers from both trees sorted in
+ascending order.</p>
+<p>Example 1:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: root1 = [2,1,4], root2 = [1,0,3]</span><br><span class="line">Output: [0,1,1,2,3,4]</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: root1 = [0,-10,10], root2 = [5,1,7,0,2]</span><br><span class="line">Output: [-10,0,0,1,2,5,7,10]</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: root1 = [], root2 = [5,1,7,0,2]</span><br><span class="line">Output: [0,1,2,5,7]</span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: root1 = [0,-10,10], root2 = []</span><br><span class="line">Output: [-10,0,10]</span><br><span class="line">Example 5:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Input: root1 = [1,null,8], root2 = [8,1]</span><br><span class="line">Output: [1,1,8,8]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Constraints:</span><br><span class="line"></span><br><span class="line">Each tree has at most 5000 nodes.</span><br><span class="line">Each node<span class="string">&#x27;s value is between [-10^5, 10^5].</span></span><br></pre></td></tr></table></figure>
+<h3 id="解题报告-1">解题报告</h3>
+<h4 id="理解题意-1">理解题意</h4>
+<ul>
+<li>这是一道中档难度题</li>
+<li>给定两个二叉排序树，要求返回一个包含所有元素并且是递增顺序的列表</li>
+</ul>
+<h4 id="思路-1">思路</h4>
+<ul>
+<li>给定的两个二叉搜索树有可能为空</li>
+<li>二叉搜索树中序遍历即为递增排序</li>
+<li>遍历两个二叉搜索树，然后对归并排序，时间复杂度为 \(\)</li>
+</ul>
+<h4 id="代码-1">代码</h4>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">getAllElements</span><span class="params">(TreeNode* root1, TreeNode* root2)</span> </span>&#123;</span><br><span class="line">    function&lt;<span class="type">void</span>(TreeNode*, vector&lt;<span class="type">int</span>&gt;&amp;)&gt; inorder = [&amp;](TreeNode* root, vector&lt;<span class="type">int</span>&gt;&amp; t) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!root) <span class="keyword">return</span>;</span><br><span class="line">      <span class="built_in">inorder</span>(root-&gt;left, t);</span><br><span class="line">      t.<span class="built_in">push_back</span>(root-&gt;val);</span><br><span class="line">      <span class="built_in">inorder</span>(root-&gt;right, t);</span><br><span class="line">    &#125;;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; t1;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; t2;</span><br><span class="line">    <span class="built_in">inorder</span>(root1, t1);</span><br><span class="line">    <span class="built_in">inorder</span>(root2, t2);</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; m;</span><br><span class="line">    std::<span class="built_in">merge</span>(<span class="built_in">begin</span>(t1), <span class="built_in">end</span>(t1), <span class="built_in">begin</span>(t2),<span class="built_in">end</span>(t2), std::<span class="built_in">back_inserter</span>(m));</span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>LeetCode</category>
+      </categories>
+      <tags>
+        <tag>LeetCode</tag>
+        <tag>Weakly Contest</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Wild Card Matching</title>
     <url>/2020/04/25/WildcardMatching/</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
@@ -2380,68 +2442,6 @@ src="/images/wildcard-matching-example5.png" alt="Example 5" /></li>
         <tag>LeetCode</tag>
         <tag>Hard</tag>
         <tag>Dynamic Programming</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Weakly Contest 169</title>
-    <url>/2019/12/29/Weakly-Contest-169/</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="题目">题目</h2>
-<p><a href="https://leetcode.com/contest/weekly-contest-169">Weakly
-Contest 169</a> ### 题目一 <a
-href="https://leetcode.com/contest/weekly-contest-169/problems/find-n-unique-integers-sum-up-to-zero/">5295.
-Find N Unique Integers Sum up to Zero</a></p>
-<p>Given an integer n, return any array containing n unique integers
-such that they add up to 0.</p>
-<p>Example 1:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: n = 5</span><br><span class="line">Output: [-7,-1,1,3,4]</span><br><span class="line">Explanation: These arrays also are accepted [-5,-1,1,2,3] , [-3,-1,2,-2,4].</span><br></pre></td></tr></table></figure>
-<p>Example 2: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: n = 3</span><br><span class="line">Output: [-1,0,1]</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: n = 1</span><br><span class="line">Output: [0]</span><br><span class="line"></span><br><span class="line">Constraints:</span><br><span class="line"></span><br><span class="line">1 &lt;= n &lt;= 1000</span><br></pre></td></tr></table></figure></p>
-<span id="more"></span>
-<h3 id="解题报告">解题报告</h3>
-<h4 id="理解题意">理解题意</h4>
-<ul>
-<li>这是一道简单题</li>
-<li>给定一个数，求数组</li>
-<li>要求数组的所有元素和位0</li>
-</ul>
-<h4 id="思路">思路</h4>
-<ul>
-<li>给的数有可能为奇数、也有可能为偶数</li>
-<li>如果是奇数：从0开始向左右拓展，最后加上0即可</li>
-<li>如果为偶数：从0开始向左右拓展</li>
-</ul>
-<h4 id="代码">代码</h4>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">sumZero</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; ans;</span><br><span class="line">        <span class="keyword">if</span> (n % <span class="number">2</span> != <span class="number">0</span>) ans.<span class="built_in">push_back</span>(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n / <span class="number">2</span>; i++) &#123;</span><br><span class="line">            ans.<span class="built_in">push_back</span>(i);</span><br><span class="line">            ans.<span class="built_in">push_back</span>(-i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="题目二">题目二</h2>
-<p><a
-href="https://leetcode.com/contest/weekly-contest-169/problems/all-elements-in-two-binary-search-trees/">5296.
-All Elements in Two Binary Search Trees My SubmissionsBack to
-Contest</a></p>
-<p>Given two binary search trees root1 and root2.</p>
-<p>Return a list containing all the integers from both trees sorted in
-ascending order.</p>
-<p>Example 1:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Input: root1 = [2,1,4], root2 = [1,0,3]</span><br><span class="line">Output: [0,1,1,2,3,4]</span><br><span class="line">Example 2:</span><br><span class="line"></span><br><span class="line">Input: root1 = [0,-10,10], root2 = [5,1,7,0,2]</span><br><span class="line">Output: [-10,0,0,1,2,5,7,10]</span><br><span class="line">Example 3:</span><br><span class="line"></span><br><span class="line">Input: root1 = [], root2 = [5,1,7,0,2]</span><br><span class="line">Output: [0,1,2,5,7]</span><br><span class="line">Example 4:</span><br><span class="line"></span><br><span class="line">Input: root1 = [0,-10,10], root2 = []</span><br><span class="line">Output: [-10,0,10]</span><br><span class="line">Example 5:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Input: root1 = [1,null,8], root2 = [8,1]</span><br><span class="line">Output: [1,1,8,8]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Constraints:</span><br><span class="line"></span><br><span class="line">Each tree has at most 5000 nodes.</span><br><span class="line">Each node<span class="string">&#x27;s value is between [-10^5, 10^5].</span></span><br></pre></td></tr></table></figure>
-<h3 id="解题报告-1">解题报告</h3>
-<h4 id="理解题意-1">理解题意</h4>
-<ul>
-<li>这是一道中档难度题</li>
-<li>给定两个二叉排序树，要求返回一个包含所有元素并且是递增顺序的列表</li>
-</ul>
-<h4 id="思路-1">思路</h4>
-<ul>
-<li>给定的两个二叉搜索树有可能为空</li>
-<li>二叉搜索树中序遍历即为递增排序</li>
-<li>遍历两个二叉搜索树，然后对归并排序，时间复杂度为 \(\)</li>
-</ul>
-<h4 id="代码-1">代码</h4>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">getAllElements</span><span class="params">(TreeNode* root1, TreeNode* root2)</span> </span>&#123;</span><br><span class="line">    function&lt;<span class="type">void</span>(TreeNode*, vector&lt;<span class="type">int</span>&gt;&amp;)&gt; inorder = [&amp;](TreeNode* root, vector&lt;<span class="type">int</span>&gt;&amp; t) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!root) <span class="keyword">return</span>;</span><br><span class="line">      <span class="built_in">inorder</span>(root-&gt;left, t);</span><br><span class="line">      t.<span class="built_in">push_back</span>(root-&gt;val);</span><br><span class="line">      <span class="built_in">inorder</span>(root-&gt;right, t);</span><br><span class="line">    &#125;;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; t1;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; t2;</span><br><span class="line">    <span class="built_in">inorder</span>(root1, t1);</span><br><span class="line">    <span class="built_in">inorder</span>(root2, t2);</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt; m;</span><br><span class="line">    std::<span class="built_in">merge</span>(<span class="built_in">begin</span>(t1), <span class="built_in">end</span>(t1), <span class="built_in">begin</span>(t2),<span class="built_in">end</span>(t2), std::<span class="built_in">back_inserter</span>(m));</span><br><span class="line">    <span class="keyword">return</span> m;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>LeetCode</category>
-      </categories>
-      <tags>
-        <tag>LeetCode</tag>
-        <tag>Weakly Contest</tag>
       </tags>
   </entry>
   <entry>
